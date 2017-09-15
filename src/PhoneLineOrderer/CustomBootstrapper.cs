@@ -3,18 +3,28 @@ using Infrastructure.Events;
 using Infrastructure.Guid;
 using Infrastructure.Rest;
 using Infrastructure.Serialization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Options;
 using Nancy;
 using Nancy.Bootstrapper;
 using Nancy.TinyIoc;
+using PhoneLineOrderer.Config;
 using Polly;
-using RestSharp;
 using System;
 using System.Net;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PhoneLineOrderer
 {
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {
+        private readonly IApplicationBuilder applicationBuilder;
+
+        public CustomBootstrapper(IApplicationBuilder applicationBuilder)
+        {
+            this.applicationBuilder = applicationBuilder;
+        }
+
         protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
         {
             var connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Loopback, 1113));
@@ -22,12 +32,8 @@ namespace PhoneLineOrderer
 
             container.Register(connection);
 
-            var config = new ConfigGetter()
-            {
-                FakeBtWebServiceUrl = "http://localhost:5003"
-            };
-
-            container.Register<IConfigGetter>(config);
+            IOptions<AppSettings> options = this.applicationBuilder.ApplicationServices.GetService<IOptions<AppSettings>>();
+            container.Register<IOptions<AppSettings>>(options);
 
             Policy exponentialRetryPolicy =
                 Policy.Handle<Exception>().WaitAndRetry(3, attempt =>

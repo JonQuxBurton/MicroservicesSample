@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Options;
+using PhoneLineOrderer.Config;
 using PhoneLineOrderer.Entities;
 using System;
 using System.Collections.Generic;
@@ -9,7 +11,12 @@ namespace PhoneLineOrderer.Data
 {
     public class PhoneLineOrdererDataStore : IPhoneLineOrdererDataStore
     {
-        private string connectionString = @"Server=SQLEXPRESS;Initial Catalog=Microservices;Integrated Security=True";
+        private string connectionString;
+
+        public PhoneLineOrdererDataStore(IOptions<AppSettings> appSettings)
+        {
+            this.connectionString = appSettings.Value.ConnectionString;
+        }
 
         public IEnumerable<PhoneLineOrder> GetByPhoneLineId(int phoneLineId)
         {
