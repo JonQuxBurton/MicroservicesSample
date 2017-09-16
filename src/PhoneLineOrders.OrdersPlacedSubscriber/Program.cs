@@ -2,34 +2,39 @@
 using Infrastructure.Guid;
 using Infrastructure.Rest;
 using Infrastructure.Timers;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using PhoneLineOrderer.Config;
 using PhoneLineOrderer.Data;
 using PhoneLineOrderer.Domain;
 using Polly;
 using RestSharp;
 using System;
+using System.IO;
 
 namespace PhoneLineOrderer.OrdersPlacedSubscriber
 {
     class Program
     {
-        private static string CustomersServiceUrl = "http://localhost:5001/";
-        private static string FakeBtWebServiceUrl = "http://localhost:5003/";
-
         static void Main(string[] args)
         {
-            var config = new ConfigGetter()
-            {
-                FakeBtWebServiceUrl = "http://localhost:5003"
-            };
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json");
+
+            IConfigurationRoot configuration = builder.Build();
+
+            var appSettings = configuration.Get<AppSettings>();
+            var options = Options.Create(appSettings);
 
             Policy exponentialRetryPolicy =
                 Policy.Handle<Exception>().WaitAndRetry(3, attempt =>
                      TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt)));
 
-            var client = new RestClient(CustomersServiceUrl);
+            var client = new RestClient(appSettings.CustomersWebServiceUrl);
             var eventGetter = new EventGetter(client);
-            var restPoster = new RestPoster(new RestClient(FakeBtWebServiceUrl), exponentialRetryPolicy);
-            var orderSender = new PhoneLineOrderSender(new PhoneLineOrdererDataStore(), config, new RestPosterFactory(exponentialRetryPolicy));
+            var restPoster = new RestPoster(new RestClient(appSettings.FakeBtWebServiceUrl), exponentialRetryPolicy);
+            var orderSender = new PhoneLineOrderSender(new PhoneLineOrdererDataStore(options), options, new RestPosterFactory(exponentialRetryPolicy));
             var subscriber = new Subscriber(eventGetter, orderSender, restPoster, new GuidCreator());
 
             var recurringTimer = new RecurringTimer(500, 5000);

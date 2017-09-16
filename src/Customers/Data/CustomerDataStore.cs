@@ -3,12 +3,19 @@ using Dapper;
 using System.Data.SqlClient;
 using Customers.Entities;
 using Customers.Resources;
+using Microsoft.Extensions.Options;
+using Customers.Config;
 
 namespace Customers.Data
 {
     public class CustomerDataStore : ICustomerDataStore
     {
-        private string connectionString = @"Server=SQLEXPRESS;Initial Catalog=Microservices;Integrated Security=True";
+        private string connectionString;
+
+        public CustomerDataStore(IOptions<AppSettings> appSettings)
+        {
+            this.connectionString = appSettings.Value.ConnectionString;
+        }
 
         public Customer GetById(int id)
         {

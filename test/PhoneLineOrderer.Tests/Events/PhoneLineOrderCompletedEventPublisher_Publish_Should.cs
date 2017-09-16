@@ -1,6 +1,8 @@
 ﻿using EventStore.ClientAPI;
 using Infrastructure.Events;
+using Microsoft.Extensions.Options;
 using Moq;
+using PhoneLineOrderer.Config;
 using PhoneLineOrderer.Events;
 using System;
 using Xunit;
@@ -19,12 +21,17 @@ namespace PhoneLineOrderer.Tests.Events
             var eventStoreMock = new Mock<IEventStore>();
             eventDataCreatorMock.Setup(x => x.Create("phoneLineOrderCompletedEvent", dummyPhoneLineOrderCompletedEvent)).Returns(expectedEventData);
 
-            var sut = new PhoneLineOrderCompletedEventPublisher(eventDataCreatorMock.Object, eventStoreMock.Object);
+            var options = Options.Create(new AppSettings()
+            {
+                PhoneLineOrdersCompletedStream = "PhoneLineOrdersCompletedStream"
+            });
+
+            var sut = new PhoneLineOrderCompletedEventPublisher(eventDataCreatorMock.Object, eventStoreMock.Object, options);
 
             sut.Publish(dummyPhoneLineOrderCompletedEvent);
 
             eventStoreMock.Verify(x =>
-                x.Raise(PhoneLineOrderCompletedEventPublisher.PhoneLineOrdersCompletedStream, expectedEventData), Times.Once);
+                x.Raise(options.Value.PhoneLineOrdersCompletedStream, expectedEventData), Times.Once);
         }
     }
 }

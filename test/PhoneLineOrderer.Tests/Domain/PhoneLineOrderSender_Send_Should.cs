@@ -1,5 +1,7 @@
 ﻿using Infrastructure.Rest;
+using Microsoft.Extensions.Options;
 using Moq;
+using PhoneLineOrderer.Config;
 using PhoneLineOrderer.Data;
 using PhoneLineOrderer.Domain;
 using PhoneLineOrderer.Entities;
@@ -14,10 +16,6 @@ namespace PhoneLineOrderer.Tests.Domain
         [Fact]
         public void SendOrderToWholesaler()
         {
-            var configGetterMock = new Mock<IConfigGetter>();
-            configGetterMock.Setup(x => x.FakeBtWebServiceUrl)
-                .Returns("FakeBtWebServiceUrl");
-
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrders", It.IsAny<object>()))
                 .Returns(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted });
@@ -26,7 +24,11 @@ namespace PhoneLineOrderer.Tests.Domain
             restPosterFactoryMock.Setup(x => x.Create("FakeBtWebServiceUrl"))
                 .Returns(restPosterMock.Object);
 
-            var sut = new PhoneLineOrderSender(new Mock<IPhoneLineOrdererDataStore>().Object, configGetterMock.Object, restPosterFactoryMock.Object);
+            var options = Options.Create(new AppSettings() {
+                FakeBtWebServiceUrl = "FakeBtWebServiceUrl"
+            });
+
+            var sut = new PhoneLineOrderSender(new Mock<IPhoneLineOrdererDataStore>().Object, options, restPosterFactoryMock.Object);
 
             sut.Send(new Resources.PhoneLineOrder());
             
@@ -44,10 +46,6 @@ namespace PhoneLineOrderer.Tests.Domain
                 Reference = Guid.NewGuid()
             };
 
-            var configGetterMock = new Mock<IConfigGetter>();
-            configGetterMock.Setup(x => x.FakeBtWebServiceUrl)
-                .Returns("FakeBtWebServiceUrl");
-
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrders", It.IsAny<object>()))
                 .Returns(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted });
@@ -56,9 +54,14 @@ namespace PhoneLineOrderer.Tests.Domain
             restPosterFactoryMock.Setup(x => x.Create("FakeBtWebServiceUrl"))
                 .Returns(restPosterMock.Object);
 
+            var options = Options.Create(new AppSettings()
+            {
+                FakeBtWebServiceUrl = "FakeBtWebServiceUrl"
+            });
+
             var phoneLineOrdersDataStore = new Mock<IPhoneLineOrdererDataStore>();
             
-            var sut = new PhoneLineOrderSender(phoneLineOrdersDataStore.Object, configGetterMock.Object, restPosterFactoryMock.Object);
+            var sut = new PhoneLineOrderSender(phoneLineOrdersDataStore.Object, options, restPosterFactoryMock.Object);
 
             sut.Send(expectedPhoneLineOrder);
 
@@ -75,9 +78,10 @@ namespace PhoneLineOrderer.Tests.Domain
         [Fact]
         public void ReturnTrueWhenSendIsSuccessful()
         {
-            var configGetterMock = new Mock<IConfigGetter>();
-            configGetterMock.Setup(x => x.FakeBtWebServiceUrl)
-                .Returns("FakeBtWebServiceUrl");
+            var options = Options.Create(new AppSettings()
+            {
+                FakeBtWebServiceUrl = "FakeBtWebServiceUrl"
+            });
 
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrders", It.IsAny<object>()))
@@ -87,7 +91,7 @@ namespace PhoneLineOrderer.Tests.Domain
             restPosterFactoryMock.Setup(x => x.Create("FakeBtWebServiceUrl"))
                 .Returns(restPosterMock.Object);
 
-            var sut = new PhoneLineOrderSender(new Mock<IPhoneLineOrdererDataStore>().Object, configGetterMock.Object, restPosterFactoryMock.Object);
+            var sut = new PhoneLineOrderSender(new Mock<IPhoneLineOrdererDataStore>().Object, options, restPosterFactoryMock.Object);
 
             var actual = sut.Send(new Resources.PhoneLineOrder());
 

@@ -1,4 +1,6 @@
 ﻿using Infrastructure.Rest;
+using Microsoft.Extensions.Options;
+using PhoneLineOrderer.Config;
 using PhoneLineOrderer.Data;
 using PhoneLineOrderer.Entities;
 using System;
@@ -9,13 +11,13 @@ namespace PhoneLineOrderer.Domain
     {
         private IPhoneLineOrdererDataStore phoneLineOrdersDataStore;
         private readonly IRestPosterFactory restPosterFactory;
-        private readonly IConfigGetter config;
+        private readonly string fakeBtWebServiceUrl;
 
-        public PhoneLineOrderSender(IPhoneLineOrdererDataStore phoneLineOrdersDataStore, IConfigGetter config, IRestPosterFactory restPosterFactory)
+        public PhoneLineOrderSender(IPhoneLineOrdererDataStore phoneLineOrdersDataStore, IOptions<AppSettings> appSettings, IRestPosterFactory restPosterFactory)
         {
             this.phoneLineOrdersDataStore = phoneLineOrdersDataStore;
             this.restPosterFactory = restPosterFactory;
-            this.config = config;
+            this.fakeBtWebServiceUrl = appSettings.Value?.FakeBtWebServiceUrl;
         }
 
         public bool Send(Resources.PhoneLineOrder phoneLineOrder)
@@ -32,7 +34,7 @@ namespace PhoneLineOrderer.Domain
 
             var id = this.phoneLineOrdersDataStore.Add(phoneLineOrderData);
 
-            var restPoster = this.restPosterFactory.Create(this.config.FakeBtWebServiceUrl);
+            var restPoster = this.restPosterFactory.Create(this.fakeBtWebServiceUrl);
 
             var response = restPoster.Post("PhoneLineOrders", new
             {
