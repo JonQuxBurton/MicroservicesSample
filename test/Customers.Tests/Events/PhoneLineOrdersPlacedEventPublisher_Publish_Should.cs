@@ -1,6 +1,8 @@
-﻿using Customers.Events;
+﻿using Customers.Config;
+using Customers.Events;
 using EventStore.ClientAPI;
 using Infrastructure.Events;
+using Microsoft.Extensions.Options;
 using Moq;
 using System;
 using Xunit;
@@ -19,12 +21,18 @@ namespace Customers.Tests.Events
             var eventStoreMock = new Mock<IEventStore>();
             eventDataCreatorMock.Setup(x => x.Create("phoneLineOrderPlaced", dummyPhoneLineOrderPlaced)).Returns(expectedEventData);
 
-            var sut = new PhoneLineOrdersPlacedEventPublisher(eventDataCreatorMock.Object, eventStoreMock.Object);
+            var appSettings = new AppSettings
+            {
+                PhoneLineOrdersPlacedStream = "PhoneLineOrdersPlacedStream"
+            };
+            var options = Options.Create(appSettings);
+
+            var sut = new PhoneLineOrdersPlacedEventPublisher(eventDataCreatorMock.Object, eventStoreMock.Object, options);
 
             sut.Publish(dummyPhoneLineOrderPlaced);
 
             eventStoreMock.Verify(x =>
-                x.Raise(PhoneLineOrdersPlacedEventPublisher.PhoneLineOrdersPlacedStream, expectedEventData), Times.Once);
+                x.Raise(appSettings.PhoneLineOrdersPlacedStream, expectedEventData), Times.Once);
         }
     }
 }
