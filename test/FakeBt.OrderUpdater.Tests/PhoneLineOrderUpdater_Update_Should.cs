@@ -1,6 +1,7 @@
+using FakeBt.Config;
 using FakeBt.Data;
-using FakeBt.OrderUpdater.Configuration;
 using Infrastructure.Rest;
+using Microsoft.Extensions.Options;
 using Moq;
 using RestSharp;
 using System;
@@ -20,19 +21,21 @@ namespace FakeBt.OrderUpdater.Tests
             var btOrdersDataStoreMock = new Mock<IBtOrdersDataStore>();
             btOrdersDataStoreMock.Setup(x => x.GetNew()).Returns(new[] { expectedPendingOrder });
 
-            var configGetterMock = new Mock<IConfigGetter>();
-            configGetterMock.Setup(x => x.PhoneLineOrdererUrl)
-                .Returns("PhoneLineOrdererUrl");
+            var appSettings = new AppSettings
+            {
+                PhoneLineOrdererWebServiceUrl = "PhoneLineOrdererWebServiceUrl"
+            };
+            var options = Options.Create(appSettings);
 
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrderCompleted", It.IsAny<object>()))
                 .Returns(new RestResponse { StatusCode = System.Net.HttpStatusCode.OK });
 
             var restPosterFactoryMock = new Mock<IRestPosterFactory>();
-            restPosterFactoryMock.Setup(x => x.Create("PhoneLineOrdererUrl"))
+            restPosterFactoryMock.Setup(x => x.Create(appSettings.PhoneLineOrdererWebServiceUrl))
                 .Returns(restPosterMock.Object);
 
-            var sut = new PhoneLineOrderUpdater(btOrdersDataStoreMock.Object, configGetterMock.Object, restPosterFactoryMock.Object);
+            var sut = new PhoneLineOrderUpdater(btOrdersDataStoreMock.Object, options, restPosterFactoryMock.Object);
 
             sut.Update(new object(), new EventArgs());
 
@@ -54,19 +57,21 @@ namespace FakeBt.OrderUpdater.Tests
             var btOrdersDataStoreMock = new Mock<IBtOrdersDataStore>();
             btOrdersDataStoreMock.Setup(x => x.GetNew()).Returns(new[] { dummyPendingOrder });
 
-            var configGetterMock = new Mock<IConfigGetter>();
-            configGetterMock.Setup(x => x.PhoneLineOrdererUrl)
-                .Returns("PhoneLineOrdererUrl");
+            var appSettings = new AppSettings
+            {
+                PhoneLineOrdererWebServiceUrl = "PhoneLineOrdererWebServiceUrl"
+            };
+            var options = Options.Create(appSettings);
 
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrderCompleted", It.IsAny<object>()))
                 .Returns(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted });
 
             var restPosterFactoryMock = new Mock<IRestPosterFactory>();
-            restPosterFactoryMock.Setup(x => x.Create("PhoneLineOrdererUrl"))
+            restPosterFactoryMock.Setup(x => x.Create(appSettings.PhoneLineOrdererWebServiceUrl))
                 .Returns(restPosterMock.Object);
 
-            var sut = new PhoneLineOrderUpdater(btOrdersDataStoreMock.Object, configGetterMock.Object, restPosterFactoryMock.Object);
+            var sut = new PhoneLineOrderUpdater(btOrdersDataStoreMock.Object, options, restPosterFactoryMock.Object);
 
             sut.Update(new object(), new EventArgs());
 

@@ -1,6 +1,7 @@
-﻿using FakeBt.Data;
-using FakeBt.OrderUpdater.Configuration;
+﻿using FakeBt.Config;
+using FakeBt.Data;
 using Infrastructure.Rest;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace FakeBt.OrderUpdater
@@ -9,18 +10,18 @@ namespace FakeBt.OrderUpdater
     {
         private readonly IBtOrdersDataStore btOrdersDataStore;
         private readonly IRestPosterFactory restPosterFactory;
-        private readonly IConfigGetter config;
+        private readonly string phoneLineOrdererUrl;
 
-        public PhoneLineOrderUpdater(IBtOrdersDataStore btOrdersDataStore, IConfigGetter config, IRestPosterFactory restPosterFactory)
+        public PhoneLineOrderUpdater(IBtOrdersDataStore btOrdersDataStore, IOptions<AppSettings> appSettings, IRestPosterFactory restPosterFactory)
         {
             this.btOrdersDataStore = btOrdersDataStore;
             this.restPosterFactory = restPosterFactory;
-            this.config = config;
+            this.phoneLineOrdererUrl = appSettings.Value.PhoneLineOrdererWebServiceUrl;
         }
 
         public void Update(object sender, EventArgs eventArgs)
         {
-            var restPoster = this.restPosterFactory.Create(this.config.PhoneLineOrdererUrl);
+            var restPoster = this.restPosterFactory.Create(phoneLineOrdererUrl);
 
             var pendingOrders = this.btOrdersDataStore.GetNew();
 

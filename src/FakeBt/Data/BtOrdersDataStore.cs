@@ -1,5 +1,7 @@
 ﻿using Dapper;
+using FakeBt.Config;
 using FakeBt.Resources;
+using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
@@ -7,7 +9,12 @@ namespace FakeBt.Data
 {
     public class BtOrdersDataStore : IBtOrdersDataStore
     {
-        private string connectionString = @"Server=SQLEXPRESS;Initial Catalog=Microservices;Integrated Security=True";
+        private string connectionString;
+
+        public BtOrdersDataStore(IOptions<AppSettings> appSettings)
+        {
+            this.connectionString = appSettings.Value.ConnectionString;
+        }
 
         public IEnumerable<BtOrderInbound> GetNew()
         {
