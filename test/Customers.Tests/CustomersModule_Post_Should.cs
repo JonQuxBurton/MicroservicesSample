@@ -30,7 +30,8 @@ namespace Customers.Tests
         {
             var expectedCustomer = new Customer()
             {
-                Name = "Mallard"
+                Name = "Mallard",
+                MobilePhoneNumber = "07900111222"
             };
 
             var json = new Nancy.Json.JavaScriptSerializer().Serialize(expectedCustomer);
@@ -41,7 +42,7 @@ namespace Customers.Tests
                 with.Body(json, "application/json");
             });
 
-            customerStoreMock.Verify(x => x.Add(expectedCustomer.Name), Times.Once);
+            customerStoreMock.Verify(x => x.Add(expectedCustomer.Name, expectedCustomer.MobilePhoneNumber), Times.Once);
         }
 
         [Fact]

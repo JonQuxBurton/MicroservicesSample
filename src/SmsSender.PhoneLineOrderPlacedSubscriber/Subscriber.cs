@@ -1,28 +1,23 @@
 ﻿using Infrastructure.Events;
-using Infrastructure.Guid;
 using Newtonsoft.Json;
-using PhoneLineOrderer.Domain;
 using System;
 using System.Collections.Generic;
 
-namespace PhoneLineOrderer.OrdersPlacedSubscriber
+namespace SmsSender.PhoneLineOrderPlacedSubscriber
 {
     public class Subscriber
     {
         private long start = 0;
         private int chunkSize = 100;
         private readonly IEventGetter eventGetter;
-        private readonly IPhoneLineOrderSender phoneLineOrderSender;
-        private readonly IGuidCreator guidCreator;
+        private readonly IOrderPlacedSmsSender orderPlacedSmsSender;
         private readonly string url = "PhoneLineOrdersPlaced";
 
-        public Subscriber(IEventGetter eventGetter, 
-            IPhoneLineOrderSender phoneLineOrderSender, 
-            IGuidCreator guidCreator)
+        public Subscriber(IEventGetter eventGetter,
+            IOrderPlacedSmsSender orderPlacedSmsSender)
         {
             this.eventGetter = eventGetter;
-            this.phoneLineOrderSender = phoneLineOrderSender;
-            this.guidCreator = guidCreator;
+            this.orderPlacedSmsSender = orderPlacedSmsSender;
         }
 
         public void Poll(object sender, EventArgs eventArgs)
@@ -41,12 +36,7 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber
             {
                 dynamic eventData = ev.Content;
 
-                this.phoneLineOrderSender.Send(new Resources.PhoneLineOrder {
-                    PhoneLineId = eventData.phoneLineId,
-                    HouseNumber = eventData.houseNumber,
-                    Postcode = eventData.postcode,
-                    Reference = this.guidCreator.Create()
-                });
+                this.orderPlacedSmsSender.Send((int)eventData.phoneLineId);
 
                 this.start = ev.SequenceNumber + 1;
             }

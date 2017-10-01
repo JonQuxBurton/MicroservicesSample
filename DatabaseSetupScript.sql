@@ -1,10 +1,12 @@
-CREATE SCHEMA [Customers] GO;
-CREATE SCHEMA [PhoneLineOrderer] GO;
-CREATE SCHEMA [FakeBt] GO;
+CREATE SCHEMA [Customers]
+CREATE SCHEMA [PhoneLineOrderer]
+CREATE SCHEMA [FakeBt]
+CREATE SCHEMA [SmsSender]
 
 CREATE TABLE [Customers].[Customers](
 	[Id] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[Name] [nchar](100) NOT NULL
+	[Name] [nchar](100) NOT NULL,
+	[MobilePhoneNumber] [nvarchar](50) NULL
 )
 GO
 
@@ -40,4 +42,11 @@ CREATE TABLE [FakeBt].[PhoneLineOrders](
 )
 GO
 
-
+CREATE TABLE [SmsSender].[Sent](
+	[Id] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[CustomerId] [int] NULL,
+	[MobilePhoneNumber] [nvarchar](50) NULL,
+	[Message] [nvarchar](100) NULL,
+	[SentAt] [datetime] NOT NULL
+)
+GO

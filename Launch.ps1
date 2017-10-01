@@ -1,4 +1,4 @@
-$rootPath = "D:\Projects\Microservices"
+$rootPath = "D:\Projects\GitHub\MicroservicesSample"
 
 # Customers
 # WebApi Port 5001 
@@ -38,5 +38,11 @@ Start-Sleep -Milliseconds 200
 # FakeBt.OrderUpdater
 # Process
 $cdProjectDir = "cd /d $rootPath\src\FakeBt.OrderUpdater";
+$params=@("/C"; $cdProjectDir; " && dotnet run"; )
+Start-Process -Verb runas "cmd.exe" $params;
+
+# SmsSender.PhoneLineOrderPlacedSubscriber
+# Process
+$cdProjectDir = "cd /d $rootPath\src\SmsSender.PhoneLineOrderPlacedSubscriber";
 $params=@("/C"; $cdProjectDir; " && dotnet run"; )
 Start-Process -Verb runas "cmd.exe" $params;

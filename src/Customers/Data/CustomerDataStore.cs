@@ -5,6 +5,7 @@ using Customers.Entities;
 using Customers.Resources;
 using Microsoft.Extensions.Options;
 using Customers.Config;
+using System.Collections.Generic;
 
 namespace Customers.Data
 {
@@ -28,14 +29,14 @@ namespace Customers.Data
             }
         }
 
-        public void Add(string name)
+        public void Add(string name, string mobilePhoneNumber)
         {
             using (var conn = new SqlConnection(connectionString))
             {
                 conn.Open(); 
                 using (var tx = conn.BeginTransaction())
                 {
-                    conn.Execute("insert into Customers.Customers(Name) values (@Name)", new { Name = name }, tx);
+                    conn.Execute("insert into Customers.Customers(Name, MobilePhoneNumber) values (@Name, @mobilePhoneNumber)", new { Name = name, MobilePhoneNumber = mobilePhoneNumber }, tx);
                     tx.Commit();
                 }
             }
@@ -76,7 +77,21 @@ namespace Customers.Data
                     transaction.Commit();
                 }
             }
+        }
 
+        public IEnumerable<Customer> GetByPhoneLineId(int phoneLineId)
+        {
+            using (var conn = new SqlConnection(connectionString))
+            {
+                var dbCustomers = conn.Query(@"select c.* from Customers.Customers c join Customers.PhoneLines pl on c.Id=pl.CustomerId where pl.Id=@PhoneLineId", new { PhoneLineId = phoneLineId });
+
+                return dbCustomers.Select(
+                    x => new Customer {
+                        Id = x.Id,
+                        Name = x.Name,
+                        MobilePhoneNumber = x.MobilePhoneNumber
+                    });
+            }
         }
     }
 }
