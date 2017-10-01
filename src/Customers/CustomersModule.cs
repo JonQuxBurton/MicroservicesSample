@@ -2,6 +2,7 @@
 using Customers.Entities;
 using Nancy;
 using Nancy.ModelBinding;
+using System.Linq;
 
 namespace Customers
 {
@@ -9,10 +10,17 @@ namespace Customers
     {
         public CustomersModule(ICustomerDataStore customerStore) : base ("/customers")
         {
+            Get("/phonelines/{phoneLineId}", x => {
+
+                int phoneLineId = x.phoneLineId;
+
+                return customerStore.GetByPhoneLineId(phoneLineId).FirstOrDefault();
+
+            });
             Post("", x => {
                 var customer = this.Bind<Customer>();
 
-                customerStore.Add(customer.Name);
+                customerStore.Add(customer.Name, customer.MobilePhoneNumber);
 
                 return HttpStatusCode.Created;
             });

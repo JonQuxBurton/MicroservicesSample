@@ -1,18 +1,16 @@
 ﻿using Infrastructure.Events;
-using Infrastructure.Guid;
 using Infrastructure.Rest;
+using Infrastructure.Serialization;
 using Infrastructure.Timers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using PhoneLineOrderer.Config;
-using PhoneLineOrderer.Data;
-using PhoneLineOrderer.Domain;
 using Polly;
 using RestSharp;
+using SmsSender.Config;
 using System;
 using System.IO;
 
-namespace PhoneLineOrderer.OrdersPlacedSubscriber
+namespace SmsSender.PhoneLineOrderPlacedSubscriber
 {
     class Program
     {
@@ -31,16 +29,23 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber
                 Policy.Handle<Exception>().WaitAndRetry(3, attempt =>
                      TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt)));
 
-            var client = new RestClient(appSettings.CustomersWebServiceUrl);
+            var client = new RestClient(appSettings.CustomersMicroserviceUrl);
             var eventGetter = new EventGetter(client);
-            var orderSender = new PhoneLineOrderSender(new PhoneLineOrdererDataStore(options), options, new RestPosterFactory(exponentialRetryPolicy));
-            var subscriber = new Subscriber(eventGetter, orderSender, new GuidCreator());
+            var webServiceGetter = new WebServiceGetter(client, exponentialRetryPolicy);
+
+            var orderPlacedSmsSender = new OrderPlacedSmsSender(
+                new SmsSender.Data.SmsSenderDataStore(options), 
+                webServiceGetter,
+                options, 
+                new JsonDeserializer());
+
+            var subscriber = new Subscriber(eventGetter, orderPlacedSmsSender);
 
             var recurringTimer = new RecurringTimer(500, 5000);
             recurringTimer.Target += subscriber.Poll;
             recurringTimer.Start();
 
-            Console.WriteLine("PhoneLineOrderer.OrdersPlacedSubscriber is running.");
+            Console.WriteLine("SmsSender.PhoneLineOrderPlacedSubscriber is running.");
 
             Console.WriteLine("Press any key to exit.");
             Console.ReadKey();

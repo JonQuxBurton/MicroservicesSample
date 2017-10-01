@@ -1,11 +1,7 @@
 ﻿using Nancy;
 using Nancy.ModelBinding;
-using System.Collections.Generic;
-using RestSharp;
 using Customers.Events;
 using Customers.Data;
-using Customers.Entities;
-using System;
 
 namespace Customers
 {

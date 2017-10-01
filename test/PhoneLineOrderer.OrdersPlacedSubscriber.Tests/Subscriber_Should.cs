@@ -42,7 +42,7 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber.Tests
             guidCreatorMock.Setup(x => x.Create())
                 .Returns(expectedPhoneLineOrder.reference);
 
-            var sut = new Subscriber(eventGetterMock.Object, phoneLineOrderSenderMock.Object, new Mock<IRestPoster>().Object, guidCreatorMock.Object);
+            var sut = new Subscriber(eventGetterMock.Object, phoneLineOrderSenderMock.Object, guidCreatorMock.Object);
 
             sut.Poll(null, new EventArgs());
 
