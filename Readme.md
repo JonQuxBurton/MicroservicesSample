@@ -2,7 +2,7 @@ Microservices sample
 ====================
 
 
-A small sample of a Microservices architecture based on the book [Microservices in .NET Core by Christian Horsdal Gammelgaard](https://www.manning.com/books/microservices-in-net-core)
+A small sample of a Microservices architecture inspired by the book [Microservices in .NET Core by Christian Horsdal Gammelgaard](https://www.manning.com/books/microservices-in-net-core)
 
 (Warning: This code is not suitable for Production use)
 
