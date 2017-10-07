@@ -41,8 +41,8 @@ $cdProjectDir = "cd /d $rootPath\src\FakeBt.OrderUpdater";
 $params=@("/C"; $cdProjectDir; " && dotnet run"; )
 Start-Process -Verb runas "cmd.exe" $params;
 
-# SmsSender.PhoneLineOrderPlacedSubscriber
+# SmsSender.Subscribers
 # Process
-$cdProjectDir = "cd /d $rootPath\src\SmsSender.PhoneLineOrderPlacedSubscriber";
+$cdProjectDir = "cd /d $rootPath\src\SmsSender.Subscribers";
 $params=@("/C"; $cdProjectDir; " && dotnet run"; )
 Start-Process -Verb runas "cmd.exe" $params;

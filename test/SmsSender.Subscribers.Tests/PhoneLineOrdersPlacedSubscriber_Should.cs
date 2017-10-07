@@ -2,20 +2,17 @@
 using Moq;
 using Newtonsoft.Json;
 using RestSharp;
-using SmsSender;
-using SmsSender.PhoneLineOrderPlacedSubscriber;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 
-namespace SmsSenderPhoneLineOrderPlacedSubscriber
+namespace SmsSender.Subscribers
 {
-    public class SubscriberShould
+    public class PhoneLineOrdersPlacedSubscriberShould
     {
         [Fact]
-        public void Something()
+        public void SendSms()
         {
             var expectedPhoneLineOrder = new
             {
@@ -40,7 +37,7 @@ namespace SmsSenderPhoneLineOrderPlacedSubscriber
                         Content = serializedEvents
                     });
 
-            var sut = new Subscriber(eventGetterMock.Object, orderPlacedSmsSenderMock.Object);
+            var sut = new PhoneLineOrdersPlacedSubscriber(eventGetterMock.Object, orderPlacedSmsSenderMock.Object);
 
             sut.Poll(null, new EventArgs());
 

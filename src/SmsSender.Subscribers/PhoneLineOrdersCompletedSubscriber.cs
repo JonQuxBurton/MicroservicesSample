@@ -3,21 +3,21 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
-namespace SmsSender.PhoneLineOrderPlacedSubscriber
+namespace SmsSender.Subscribers
 {
-    public class Subscriber
+    public class PhoneLineOrdersCompletedSubscriber
     {
         private long start = 0;
         private int chunkSize = 100;
         private readonly IEventGetter eventGetter;
-        private readonly IOrderPlacedSmsSender orderPlacedSmsSender;
-        private readonly string url = "PhoneLineOrdersPlaced";
+        private readonly IOrderCompletedSmsSender orderCompletedSmsSender;
+        private readonly string url = "PhoneLineOrdersCompleted";
 
-        public Subscriber(IEventGetter eventGetter,
-            IOrderPlacedSmsSender orderPlacedSmsSender)
+        public PhoneLineOrdersCompletedSubscriber(IEventGetter eventGetter,
+            IOrderCompletedSmsSender orderCompletedSmsSender)
         {
             this.eventGetter = eventGetter;
-            this.orderPlacedSmsSender = orderPlacedSmsSender;
+            this.orderCompletedSmsSender = orderCompletedSmsSender;
         }
 
         public void Poll(object sender, EventArgs eventArgs)
@@ -36,7 +36,7 @@ namespace SmsSender.PhoneLineOrderPlacedSubscriber
             {
                 dynamic eventData = ev.Content;
 
-                this.orderPlacedSmsSender.Send((int)eventData.phoneLineId);
+                this.orderCompletedSmsSender.Send((int)eventData.phoneLineId);
 
                 this.start = ev.SequenceNumber + 1;
             }

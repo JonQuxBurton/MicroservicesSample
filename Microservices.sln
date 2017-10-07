@@ -37,13 +37,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhoneLineOrderer.OrdersPlac
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FakeBt.OrderUpdater.Tests", "test\FakeBt.OrderUpdater.Tests\FakeBt.OrderUpdater.Tests.csproj", "{650E2E67-CFFF-4447-AC75-89A8A8C52461}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmsSender.PhoneLineOrderPlacedSubscriber", "src\SmsSender.PhoneLineOrderPlacedSubscriber\SmsSender.PhoneLineOrderPlacedSubscriber.csproj", "{94FC10F4-77C7-47A7-AC4D-6F78857DC8C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmsSender.Subscribers", "src\SmsSender.Subscribers\SmsSender.Subscribers.csproj", "{94FC10F4-77C7-47A7-AC4D-6F78857DC8C2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmsSender", "src\SmsSender\SmsSender.csproj", "{2EECC73E-5BD3-4280-BE2B-A7C71A4BFFFF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmsSender.Tests", "test\SmsSender.Tests\SmsSender.Tests.csproj", "{7C2B52B2-7C9E-41E4-8B1A-B15A81F2779E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsSenderPhoneLineOrderPlacedSubscriber", "test\SmsSenderPhoneLineOrderPlacedSubscriber\SmsSenderPhoneLineOrderPlacedSubscriber.csproj", "{587FAFC0-19EE-47AB-8E58-0C430A87FFCC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmsSender.Subscribers.Tests", "test\SmsSender.Subscribers.Tests\SmsSender.Subscribers.Tests.csproj", "{587FAFC0-19EE-47AB-8E58-0C430A87FFCC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
