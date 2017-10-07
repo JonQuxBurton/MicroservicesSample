@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SmsSender.PhoneLineOrderPlacedSubscriber\SmsSender.PhoneLineOrderPlacedSubscriber.csproj" />
+    <ProjectReference Include="..\..\src\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\SmsSender.Subscribers\SmsSender.Subscribers.csproj" />
   </ItemGroup>
 
 </Project>

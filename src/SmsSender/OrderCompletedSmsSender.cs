@@ -5,18 +5,18 @@ using SmsSender.Data;
 
 namespace SmsSender
 {
-    public class OrderPlacedSmsSender : IOrderPlacedSmsSender
+    public class OrderCompletedSmsSender : IOrderCompletedSmsSender
     {
-        public const string TextMessage = "Thank you for your ordering a phone line.";
+        public const string TextMessage = "Your phone line is now ready for use.";
 
         private readonly ISmsSenderDataStore smsSenderDataStore;
         private readonly IWebServiceGetter webServiceGetter;
         private readonly IDeserializer deserializer;
         private readonly IDateTimeOffsetCreator dateTimeOffsetCreator;
 
-        public OrderPlacedSmsSender(ISmsSenderDataStore smsSenderDataStore, 
+        public OrderCompletedSmsSender(ISmsSenderDataStore smsSenderDataStore,
             IWebServiceGetter webServiceGetter,
-            IDeserializer deserializer, 
+            IDeserializer deserializer,
             IDateTimeOffsetCreator dateTimeOffsetCreator)
         {
             this.smsSenderDataStore = smsSenderDataStore;
@@ -26,7 +26,7 @@ namespace SmsSender
         }
 
         public bool Send(int phoneLineId)
-        {            
+        {
             var response = this.webServiceGetter.Get($"/customers/phonelines/{phoneLineId}");
 
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
@@ -37,7 +37,7 @@ namespace SmsSender
             var customer = this.deserializer.Deserialize<Customer>(response.Content);
 
             if (customer != null)
-                this.smsSenderDataStore.Send(customer, OrderPlacedSmsSender.TextMessage, this.dateTimeOffsetCreator.Now);
+                this.smsSenderDataStore.Send(customer, OrderCompletedSmsSender.TextMessage, this.dateTimeOffsetCreator.Now);
 
             return true;
         }
