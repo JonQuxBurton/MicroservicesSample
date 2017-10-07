@@ -1,4 +1,5 @@
-﻿using Infrastructure.Events;
+﻿using Infrastructure.DateTimeUtilities;
+using Infrastructure.Events;
 using Infrastructure.Rest;
 using Infrastructure.Serialization;
 using Infrastructure.Timers;
@@ -32,12 +33,12 @@ namespace SmsSender.PhoneLineOrderPlacedSubscriber
             var client = new RestClient(appSettings.CustomersMicroserviceUrl);
             var eventGetter = new EventGetter(client);
             var webServiceGetter = new WebServiceGetter(client, exponentialRetryPolicy);
-
+            
             var orderPlacedSmsSender = new OrderPlacedSmsSender(
                 new SmsSender.Data.SmsSenderDataStore(options), 
                 webServiceGetter,
-                options, 
-                new JsonDeserializer());
+                new JsonDeserializer(),
+                new DateTimeOffsetCreator());
 
             var subscriber = new Subscriber(eventGetter, orderPlacedSmsSender);
 
