@@ -1,4 +1,5 @@
-﻿using Infrastructure.Rest;
+﻿using Infrastructure.DateTimeUtilities;
+using Infrastructure.Rest;
 using Infrastructure.Serialization;
 using Microsoft.Extensions.Options;
 using SmsSender.Config;
@@ -14,17 +15,17 @@ namespace SmsSender
         private readonly ISmsSenderDataStore smsSenderDataStore;
         private readonly IWebServiceGetter webServiceGetter;
         private readonly IDeserializer deserializer;
-        private readonly string customersMicroserviceUrl;
+        private readonly IDateTimeOffsetCreator dateTimeOffsetCreator;
 
         public OrderPlacedSmsSender(ISmsSenderDataStore smsSenderDataStore, 
             IWebServiceGetter webServiceGetter,
-            IOptions<AppSettings> appSettings,
-            IDeserializer deserializer)
+            IDeserializer deserializer, 
+            IDateTimeOffsetCreator dateTimeOffsetCreator)
         {
             this.smsSenderDataStore = smsSenderDataStore;
             this.webServiceGetter = webServiceGetter;
             this.deserializer = deserializer;
-            customersMicroserviceUrl = appSettings.Value.CustomersMicroserviceUrl;
+            this.dateTimeOffsetCreator = dateTimeOffsetCreator;
         }
 
         public bool Send(int phoneLineId)
@@ -39,7 +40,7 @@ namespace SmsSender
             var customer = this.deserializer.Deserialize<Customer>(response.Content);
 
             if (customer != null)
-                this.smsSenderDataStore.Send(customer, OrderPlacedSmsSender.TextMessage, new DateTimeOffset(DateTime.Now));
+                this.smsSenderDataStore.Send(customer, OrderPlacedSmsSender.TextMessage, this.dateTimeOffsetCreator.Now);
 
             return true;
         }
