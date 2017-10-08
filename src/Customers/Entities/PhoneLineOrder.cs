@@ -8,6 +8,6 @@ namespace Customers.Entities
         public string PhoneNumber { get; set; }
         public int Reference { get; set; }
         public string Status { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }

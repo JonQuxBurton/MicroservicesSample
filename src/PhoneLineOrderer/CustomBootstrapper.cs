@@ -13,6 +13,7 @@ using Polly;
 using System;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
+using Infrastructure.DateTimeUtilities;
 
 namespace PhoneLineOrderer
 {
@@ -47,6 +48,7 @@ namespace PhoneLineOrderer
             container.Register<Infrastructure.Serialization.ISerializer, JsonSerializer>().AsSingleton();
             container.Register<IDeserializer, JsonDeserializer>().AsSingleton();
             container.Register<IGuidCreator, GuidCreator>();
+            container.Register<IDateTimeOffsetCreator, DateTimeOffsetCreator>();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Infrastructure.Rest;
+﻿using Infrastructure.DateTimeUtilities;
+using Infrastructure.Rest;
 using Microsoft.Extensions.Options;
 using Moq;
 using PhoneLineOrderer.Config;
@@ -28,7 +29,7 @@ namespace PhoneLineOrderer.Tests.Domain
                 FakeBtWebServiceUrl = "FakeBtWebServiceUrl"
             });
 
-            var sut = new PhoneLineOrderSender(new Mock<IPhoneLineOrdererDataStore>().Object, options, restPosterFactoryMock.Object);
+            var sut = new PhoneLineOrderSender(new Mock<IPhoneLineOrdererDataStore>().Object, options, restPosterFactoryMock.Object, new Mock<IDateTimeOffsetCreator>().Object);
 
             sut.Send(new Resources.PhoneLineOrder());
             
@@ -45,6 +46,11 @@ namespace PhoneLineOrderer.Tests.Domain
                 Postcode = "S1 1AA",
                 Reference = Guid.NewGuid()
             };
+            var expectedCreatedAt = new DateTimeOffset(new DateTime(2001, 5, 4));
+
+            var dateTimeOffsetCreatorMock = new Mock<IDateTimeOffsetCreator>();
+            dateTimeOffsetCreatorMock.Setup(x => x.Now)
+                .Returns(expectedCreatedAt);
 
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrders", It.IsAny<object>()))
@@ -61,7 +67,7 @@ namespace PhoneLineOrderer.Tests.Domain
 
             var phoneLineOrdersDataStore = new Mock<IPhoneLineOrdererDataStore>();
             
-            var sut = new PhoneLineOrderSender(phoneLineOrdersDataStore.Object, options, restPosterFactoryMock.Object);
+            var sut = new PhoneLineOrderSender(phoneLineOrdersDataStore.Object, options, restPosterFactoryMock.Object, dateTimeOffsetCreatorMock.Object);
 
             sut.Send(expectedPhoneLineOrder);
 
@@ -71,7 +77,8 @@ namespace PhoneLineOrderer.Tests.Domain
                         y.Status == "New" &&
                         y.HouseNumber == expectedPhoneLineOrder.HouseNumber &&
                         y.Postcode == expectedPhoneLineOrder.Postcode &&
-                        y.ExternalReference == expectedPhoneLineOrder.Reference
+                        y.ExternalReference == expectedPhoneLineOrder.Reference &&
+                        y.CreatedAt == expectedCreatedAt
                     )), Times.Once);
         }
 
@@ -91,7 +98,7 @@ namespace PhoneLineOrderer.Tests.Domain
             restPosterFactoryMock.Setup(x => x.Create("FakeBtWebServiceUrl"))
                 .Returns(restPosterMock.Object);
 
-            var sut = new PhoneLineOrderSender(new Mock<IPhoneLineOrdererDataStore>().Object, options, restPosterFactoryMock.Object);
+            var sut = new PhoneLineOrderSender(new Mock<IPhoneLineOrdererDataStore>().Object, options, restPosterFactoryMock.Object, new Mock<IDateTimeOffsetCreator>().Object);
 
             var actual = sut.Send(new Resources.PhoneLineOrder());
 
