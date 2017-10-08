@@ -60,5 +60,20 @@ namespace PhoneLineOrderer.Tests
             Assert.Equal(expectedEvents.First().OccurredAt, actual.First().OccurredAt);
             Assert.Equal(expectedEvents.First().Content, actual.First().Content);
         }
+
+        [Fact]
+        public void Return_InternalServerErrorWhenEventGetFails()
+        {
+            phoneLineOrderCompletedEventGetterMock.Setup(x => x.GetEvents(0, 100)).Throws<Exception>();
+
+            var response = browser.Get($"/PhoneLineOrdersCompleted", with =>
+            {
+                with.HttpRequest();
+                with.Query("start", "0");
+                with.Query("end", "100");
+            });
+
+            Assert.Equal(Nancy.HttpStatusCode.InternalServerError, response.Result.StatusCode);
+        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Nancy;
 using PhoneLineOrderer.Events;
+using System;
+using System.Linq;
 
 namespace PhoneLineOrderer
 {
@@ -17,7 +19,14 @@ namespace PhoneLineOrderer
                 if (!long.TryParse(this.Request.Query.end.Value, out lastEventSequenceNumber))
                     lastEventSequenceNumber = 100;
 
-                return phoneLineOrderCompletedEventGetter.GetEvents(firstEventSequenceNumber, lastEventSequenceNumber);
+                try
+                { 
+                    return phoneLineOrderCompletedEventGetter.GetEvents(firstEventSequenceNumber, lastEventSequenceNumber).ToList();
+                }
+                catch (Exception)
+                {
+                    return HttpStatusCode.InternalServerError;
+                }
             });
         }
     }

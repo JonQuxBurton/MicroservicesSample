@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Customers.Tests
@@ -47,9 +46,8 @@ namespace Customers.Tests
                 with.Query("end", "100");
             });
 
-            var responseBody = response.Result.Body;
-
             Assert.Equal(Nancy.HttpStatusCode.OK, response.Result.StatusCode);
+            var responseBody = response.Result.Body;
 
             var actual = JsonConvert.DeserializeObject<IEnumerable<Event>>(responseBody.AsString());
 
@@ -59,6 +57,21 @@ namespace Customers.Tests
             Assert.Equal(expectedEvents.First().SequenceNumber, actual.First().SequenceNumber);
             Assert.Equal(expectedEvents.First().OccurredAt, actual.First().OccurredAt);
             Assert.Equal(expectedEvents.First().Content, actual.First().Content);
+        }
+
+        [Fact]
+        public void Return_InternalServerErrorWhenEventGetFails()
+        {
+            phoneLineOrdersPlacedEventStore.Setup(x => x.GetEvents(0, 100)).Throws<Exception>();
+
+            var response = browser.Get($"/PhoneLineOrdersPlaced", with =>
+            {
+                with.HttpRequest();
+                with.Query("start", "0");
+                with.Query("end", "100");
+            });
+
+            Assert.Equal(Nancy.HttpStatusCode.InternalServerError, response.Result.StatusCode);
         }
     }
 }
