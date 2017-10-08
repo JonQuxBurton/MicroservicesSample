@@ -47,7 +47,6 @@ namespace SmsSender.Subscribers
 
             var phoneLineOrdererClient = new RestClient(appSettings.PhoneLineOrdererMicroserviceUrl);
             var phoneLineOrdersCompletedEventGetter = new EventGetter(phoneLineOrdererClient);
-            //var phoneLineOrdersCompletedWebServiceGetter = new WebServiceGetter(phoneLineOrdererClient, exponentialRetryPolicy);
 
             var phoneLineOrdersCompletedSmsSender = new OrderCompletedSmsSender(
                 new Data.SmsSenderDataStore(options),

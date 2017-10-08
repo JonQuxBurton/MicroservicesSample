@@ -8,7 +8,7 @@ namespace PhoneLineOrderer.Entities
         public int? PhoneLineId { get; set; }
         public Guid ExternalReference { get; set; }
         public string Status { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
         public int HouseNumber { get; set; }
         public string Postcode { get; set; }
     }

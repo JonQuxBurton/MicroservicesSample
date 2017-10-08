@@ -2,7 +2,6 @@
 using Dapper;
 using System.Data.SqlClient;
 using Customers.Entities;
-using Customers.Resources;
 using Microsoft.Extensions.Options;
 using Customers.Config;
 using System.Collections.Generic;

@@ -1,9 +1,9 @@
-﻿using Infrastructure.Rest;
+﻿using Infrastructure.DateTimeUtilities;
+using Infrastructure.Rest;
 using Microsoft.Extensions.Options;
 using PhoneLineOrderer.Config;
 using PhoneLineOrderer.Data;
 using PhoneLineOrderer.Entities;
-using System;
 
 namespace PhoneLineOrderer.Domain
 {
@@ -11,12 +11,17 @@ namespace PhoneLineOrderer.Domain
     {
         private IPhoneLineOrdererDataStore phoneLineOrdersDataStore;
         private readonly IRestPosterFactory restPosterFactory;
+        private readonly IDateTimeOffsetCreator dateTimeOffsetCreator;
         private readonly string fakeBtWebServiceUrl;
 
-        public PhoneLineOrderSender(IPhoneLineOrdererDataStore phoneLineOrdersDataStore, IOptions<AppSettings> appSettings, IRestPosterFactory restPosterFactory)
+        public PhoneLineOrderSender(IPhoneLineOrdererDataStore phoneLineOrdersDataStore, 
+            IOptions<AppSettings> appSettings, 
+            IRestPosterFactory restPosterFactory,
+            IDateTimeOffsetCreator dateTimeOffsetCreator)
         {
             this.phoneLineOrdersDataStore = phoneLineOrdersDataStore;
             this.restPosterFactory = restPosterFactory;
+            this.dateTimeOffsetCreator = dateTimeOffsetCreator;
             this.fakeBtWebServiceUrl = appSettings.Value?.FakeBtWebServiceUrl;
         }
 
@@ -25,7 +30,7 @@ namespace PhoneLineOrderer.Domain
             var phoneLineOrderData = new PhoneLineOrder
             {
                 PhoneLineId = phoneLineOrder.PhoneLineId,
-                CreatedAt = DateTime.Now,
+                CreatedAt = this.dateTimeOffsetCreator.Now,
                 Status = "New",
                 HouseNumber = phoneLineOrder.HouseNumber,
                 Postcode = phoneLineOrder.Postcode,

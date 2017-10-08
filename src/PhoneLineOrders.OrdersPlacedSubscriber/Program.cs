@@ -1,4 +1,5 @@
-﻿using Infrastructure.Events;
+﻿using Infrastructure.DateTimeUtilities;
+using Infrastructure.Events;
 using Infrastructure.Guid;
 using Infrastructure.Rest;
 using Infrastructure.Timers;
@@ -33,7 +34,10 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber
 
             var client = new RestClient(appSettings.CustomersWebServiceUrl);
             var eventGetter = new EventGetter(client);
-            var orderSender = new PhoneLineOrderSender(new PhoneLineOrdererDataStore(options), options, new RestPosterFactory(exponentialRetryPolicy));
+            var orderSender = new PhoneLineOrderSender(new PhoneLineOrdererDataStore(options), 
+                options, 
+                new RestPosterFactory(exponentialRetryPolicy),
+                new DateTimeOffsetCreator());
             var subscriber = new Subscriber(eventGetter, orderSender, new GuidCreator());
 
             var recurringTimer = new RecurringTimer(500, 5000);
