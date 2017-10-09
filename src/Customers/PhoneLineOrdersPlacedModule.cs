@@ -1,5 +1,7 @@
 ﻿using Customers.Events;
 using Nancy;
+using System;
+using System.Linq;
 
 namespace Customers
 {
@@ -17,7 +19,14 @@ namespace Customers
                 if (!long.TryParse(this.Request.Query.end.Value, out lastEventSequenceNumber))
                     lastEventSequenceNumber = 100;
 
-                return phoneLineOrdersPlacedEventGetter.GetEvents(firstEventSequenceNumber, lastEventSequenceNumber);
+                try
+                {
+                    return phoneLineOrdersPlacedEventGetter.GetEvents(firstEventSequenceNumber, lastEventSequenceNumber).ToList();
+                }
+                catch (Exception)
+                {
+                    return HttpStatusCode.InternalServerError;
+                }
             });
         }
     }
