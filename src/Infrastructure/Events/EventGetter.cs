@@ -6,11 +6,11 @@ namespace Infrastructure.Events
 {
     public class EventGetter : IEventGetter
     {
-        private readonly IRestGetterFactory restGetterFactory;
+        private readonly IRestGetter restGetter;
 
-        public EventGetter(IRestGetterFactory restGetterFactory)
+        public EventGetter(IRestGetter restGetter)
         {
-            this.restGetterFactory = restGetterFactory;
+            this.restGetter = restGetter;
         }
 
         public async Task<IRestResponse> Get(string url, long start, int chunkSize)
@@ -20,9 +20,7 @@ namespace Infrastructure.Events
             request.AddQueryParameter("start", start.ToString());
             request.AddQueryParameter("end", (start + chunkSize).ToString());
 
-            var getter = this.restGetterFactory.Create(url);
-
-            return await getter.Get(request);
+            return await this.restGetter.Get(request);
         }
     }
 }

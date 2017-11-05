@@ -1,6 +1,7 @@
 ﻿using Customers.Config;
 using Customers.Data;
 using Infrastructure.Events;
+using Infrastructure.Rest;
 using Infrastructure.Timers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -23,8 +24,9 @@ namespace Customers.PhoneLineOrderCompletedSubscriber
             var appSettings = configuration.Get<AppSettings>();
             var options = Options.Create(appSettings);
 
-            var client = new RestClient(appSettings.PhoneLineOrdererServiceUrl);
-            var eventGetter = new EventGetter(client);
+            var restGetterFactory = new RestGetterFactory();
+            var restGetter = restGetterFactory.Create(appSettings.PhoneLineOrdererServiceUrl);
+            var eventGetter = new EventGetter(restGetter);
             var subscriber = new Subscriber(eventGetter, new CustomerDataStore(options));
 
             var recurringTimer = new RecurringTimer(500, 5000);

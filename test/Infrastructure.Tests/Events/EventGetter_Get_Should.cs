@@ -21,11 +21,7 @@ namespace Infrastructure.Tests.Events
             restGetterMock.Setup(x => x.Get(It.IsAny<RestRequest>()))
                 .Returns(Task.FromResult<IRestResponse>(expected));
 
-            var restGetterFactoryMock = new Mock<IRestGetterFactory>();
-            restGetterFactoryMock.Setup(x => x.Create(dummyUrl))
-                .Returns(restGetterMock.Object);
-
-            var sut = new EventGetter(restGetterFactoryMock.Object);
+            var sut = new EventGetter(restGetterMock.Object);
 
             var actual = await sut.Get(dummyUrl, 0, 100);
 
