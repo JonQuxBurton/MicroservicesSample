@@ -27,10 +27,9 @@ namespace Infrastructure.Rest
             this.policy.Execute(async () =>
             {
                 TaskCompletionSource<IRestResponse> taskCompletion = new TaskCompletionSource<IRestResponse>();
-                RestRequestAsyncHandle handle = this.restClient.ExecuteAsync(request, r => taskCompletion.SetResult(r));
-                response = (RestResponse)(await taskCompletion.Task);
+                this.restClient.ExecuteAsync(request, r => taskCompletion.SetResult(r));
 
-                //response = this.restClient.Execute(request);
+                response = await taskCompletion.Task;
             });
 
             return response;

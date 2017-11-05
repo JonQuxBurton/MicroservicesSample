@@ -1,15 +1,16 @@
-﻿using RestSharp;
+﻿using Infrastructure.Rest;
+using RestSharp;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Events
 {
     public class EventGetter : IEventGetter
     {
-        private readonly IRestClient restClient;
+        private readonly IRestGetterFactory restGetterFactory;
 
-        public EventGetter(IRestClient restClient)
+        public EventGetter(IRestGetterFactory restGetterFactory)
         {
-            this.restClient = restClient;
+            this.restGetterFactory = restGetterFactory;
         }
 
         public async Task<IRestResponse> Get(string url, long start, int chunkSize)
@@ -19,11 +20,9 @@ namespace Infrastructure.Events
             request.AddQueryParameter("start", start.ToString());
             request.AddQueryParameter("end", (start + chunkSize).ToString());
 
-            TaskCompletionSource<IRestResponse> taskCompletion = new TaskCompletionSource<IRestResponse>();
-            RestRequestAsyncHandle handle = this.restClient.ExecuteAsync(request, r => taskCompletion.SetResult(r));
-            return (RestResponse)(await taskCompletion.Task);
+            var getter = this.restGetterFactory.Create(url);
 
-            //return this.restClient.Execute(request);
+            return await getter.Get(request);
         }
     }
 }

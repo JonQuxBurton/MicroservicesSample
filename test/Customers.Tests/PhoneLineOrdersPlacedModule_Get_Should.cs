@@ -34,8 +34,10 @@ namespace Customers.Tests
         {
             var expectedEvent = new Event(10, new DateTimeOffset(new DateTime(2001, 5, 4)), "Name", "Content");
 
-            var expectedEvents = new List<Event>();
-            expectedEvents.Add(expectedEvent);
+            var expectedEvents = new List<Event>
+            {
+                expectedEvent
+            };
 
             phoneLineOrdersPlacedEventStore.Setup(x => x.GetEvents(0, 100)).Returns(expectedEvents.AsEnumerable());
 
