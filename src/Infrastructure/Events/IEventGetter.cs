@@ -1,9 +1,10 @@
 ﻿using RestSharp;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Events
 {
     public interface IEventGetter
     {
-        IRestResponse Get(string url, long start, int chunkSize);
+        Task<IRestResponse> Get(string url, long start, int chunkSize);
     }
 }

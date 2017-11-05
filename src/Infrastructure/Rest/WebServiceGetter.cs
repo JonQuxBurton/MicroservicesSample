@@ -1,5 +1,6 @@
 ﻿using Polly;
 using RestSharp;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Rest
 {
@@ -21,9 +22,13 @@ namespace Infrastructure.Rest
 
             IRestResponse response = null;
 
-            this.policy.Execute(() =>
+            this.policy.Execute(async () =>
             {
-                response = this.restClient.Execute(request);
+                TaskCompletionSource<IRestResponse> taskCompletion = new TaskCompletionSource<IRestResponse>();
+                RestRequestAsyncHandle handle = this.restClient.ExecuteAsync(request, r => taskCompletion.SetResult(r));
+                response = (RestResponse)(await taskCompletion.Task);
+
+                //response = this.restClient.Execute(request);
             });
 
             return response;
