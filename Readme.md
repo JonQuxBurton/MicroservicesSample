@@ -15,7 +15,7 @@ Data access: [Dapper](https://github.com/StackExchange/Dapper)
 
 Event-based collaboration: [EventStore](https://github.com/EventStore/EventStore)
 
-Robutness: [Polly](https://github.com/App-vNext/Polly)
+Robustness: [Polly](https://github.com/App-vNext/Polly)
 
 Unit tests: [Moq](https://github.com/Moq/moq4/wiki/Quickstart), [xUnit](https://xunit.github.io/)
 
