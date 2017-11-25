@@ -25,9 +25,9 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber
             this.guidCreator = guidCreator;
         }
 
-        public void Poll(object sender, EventArgs eventArgs)
+        public async void Poll(object sender, EventArgs eventArgs)
         {
-            var response = eventGetter.Get(url, this.start, this.chunkSize);
+            var response = await eventGetter.Get(url, this.start, this.chunkSize);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 HandleEvents(response.Content);
