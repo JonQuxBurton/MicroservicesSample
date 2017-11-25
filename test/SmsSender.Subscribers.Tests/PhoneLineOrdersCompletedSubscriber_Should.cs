@@ -5,6 +5,7 @@ using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace SmsSender.Subscribers.Tests
@@ -31,11 +32,11 @@ namespace SmsSender.Subscribers.Tests
             var eventGetterMock = new Mock<IEventGetter>();
             eventGetterMock.Setup(
                 x => x.Get("PhoneLineOrdersCompleted", 0, 100))
-                    .Returns(new RestResponse()
+                    .Returns(Task.FromResult<IRestResponse>(new RestResponse()
                     {
                         StatusCode = System.Net.HttpStatusCode.OK,
                         Content = serializedEvents
-                    });
+                    }));
 
             var sut = new PhoneLineOrdersCompletedSubscriber(eventGetterMock.Object, orderCompletedSmsSenderMock.Object);
 
