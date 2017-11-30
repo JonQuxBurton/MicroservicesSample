@@ -1,9 +1,10 @@
 ﻿using RestSharp;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Rest
 {
     public interface IRestPoster
     {
-        IRestResponse Post(string resource, object body);
+        Task<IRestResponse> Post(string resource, object body);
     }
 }

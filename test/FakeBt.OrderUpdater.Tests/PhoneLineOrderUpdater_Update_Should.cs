@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using RestSharp;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace FakeBt.OrderUpdater.Tests
@@ -29,7 +30,7 @@ namespace FakeBt.OrderUpdater.Tests
 
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrderCompleted", It.IsAny<object>()))
-                .Returns(new RestResponse { StatusCode = System.Net.HttpStatusCode.OK });
+                .Returns(Task.FromResult<IRestResponse>(new RestResponse { StatusCode = System.Net.HttpStatusCode.OK }));
 
             var restPosterFactoryMock = new Mock<IRestPosterFactory>();
             restPosterFactoryMock.Setup(x => x.Create(appSettings.PhoneLineOrdererWebServiceUrl))
@@ -65,7 +66,7 @@ namespace FakeBt.OrderUpdater.Tests
 
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrderCompleted", It.IsAny<object>()))
-                .Returns(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted });
+                .Returns(Task.FromResult<IRestResponse>(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted }));
 
             var restPosterFactoryMock = new Mock<IRestPosterFactory>();
             restPosterFactoryMock.Setup(x => x.Create(appSettings.PhoneLineOrdererWebServiceUrl))

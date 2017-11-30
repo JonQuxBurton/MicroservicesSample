@@ -2,6 +2,8 @@
 using Infrastructure.Rest;
 using Infrastructure.Serialization;
 using SmsSender.Data;
+using System;
+using System.Threading.Tasks;
 
 namespace SmsSender
 {
@@ -25,12 +27,13 @@ namespace SmsSender
             this.dateTimeOffsetCreator = dateTimeOffsetCreator;
         }
 
-        public bool Send(int phoneLineId)
+        public async Task<bool> Send(int phoneLineId)
         {            
-            var response = this.webServiceGetter.Get($"/customers/phonelines/{phoneLineId}");
+            var response = await this.webServiceGetter.Get($"/customers/phonelines/{phoneLineId}");
 
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+            if (response == null || response.StatusCode != System.Net.HttpStatusCode.OK)
             {
+                Console.WriteLine($"response.StatuCode: {response?.StatusCode}");
                 return false;
             }
 

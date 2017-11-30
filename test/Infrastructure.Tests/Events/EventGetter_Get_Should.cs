@@ -10,7 +10,7 @@ namespace Infrastructure.Tests.Events
     public class EventGetter_Get_Should
     {
         [Fact]
-        public async void ReturnEvents()
+        public void ReturnEvents()
         {
             var expected = new RestResponse();
             var dummyUrl = "url";
@@ -19,11 +19,11 @@ namespace Infrastructure.Tests.Events
 
             var restGetterMock = new Mock<IRestGetter>();
             restGetterMock.Setup(x => x.Get(It.IsAny<RestRequest>()))
-                .Returns(Task.FromResult<IRestResponse>(expected));
+                .Returns(expected);
 
             var sut = new EventGetter(restGetterMock.Object);
 
-            var actual = await sut.Get(dummyUrl, 0, 100);
+            var actual = sut.Get(dummyUrl, 0, 100);
 
             Assert.Equal(expected, actual);
         }

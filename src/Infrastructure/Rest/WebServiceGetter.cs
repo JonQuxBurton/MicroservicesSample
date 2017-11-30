@@ -15,20 +15,16 @@ namespace Infrastructure.Rest
             this.policy = policy;
         }
 
-        public IRestResponse Get(string resource)
+        public async Task<IRestResponse> Get(string resource)
         {
             var request = new RestRequest(resource, Method.GET);
             request.AddHeader("Content-type", "application/json");
 
             IRestResponse response = null;
 
-            this.policy.Execute(async () =>
+            await this.policy.Execute(async () =>
             {
-                TaskCompletionSource<IRestResponse> taskCompletion = new TaskCompletionSource<IRestResponse>();
-                RestRequestAsyncHandle handle = this.restClient.ExecuteAsync(request, r => taskCompletion.SetResult(r));
-                response = (RestResponse)(await taskCompletion.Task);
-
-                //response = this.restClient.Execute(request);
+                response = this.restClient.Get(request);
             });
 
             return response;

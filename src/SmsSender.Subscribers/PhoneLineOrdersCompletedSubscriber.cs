@@ -20,9 +20,9 @@ namespace SmsSender.Subscribers
             this.orderCompletedSmsSender = orderCompletedSmsSender;
         }
 
-        public async void Poll(object sender, EventArgs eventArgs)
+        public void Poll(object sender, EventArgs eventArgs)
         {
-            var response = await eventGetter.Get(url, this.start, this.chunkSize);
+            var response = eventGetter.Get(url, this.start, this.chunkSize);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 HandleEvents(response.Content);

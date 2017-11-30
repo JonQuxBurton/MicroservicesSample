@@ -1,7 +1,9 @@
-﻿namespace SmsSender
+﻿using System.Threading.Tasks;
+
+namespace SmsSender
 {
     public interface IOrderPlacedSmsSender
     {
-        bool Send(int phoneLineId);
+        Task<bool> Send(int phoneLineId);
     }
 }

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Rest
 {
@@ -15,12 +14,9 @@ namespace Infrastructure.Rest
             this.restClient = restClient;
         }
 
-        public async Task<IRestResponse> Get(IRestRequest restRequest)
+        public IRestResponse Get(IRestRequest restRequest)
         {
-            TaskCompletionSource<IRestResponse> taskCompletion = new TaskCompletionSource<IRestResponse>();
-            RestRequestAsyncHandle handle = this.restClient.ExecuteAsync(restRequest, r => taskCompletion.SetResult(r));
-
-            return await taskCompletion.Task;
+            return this.restClient.Execute(restRequest);
         }
     }
 }

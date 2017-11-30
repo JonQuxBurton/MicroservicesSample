@@ -20,12 +20,14 @@ namespace Customers.PhoneLineOrderCompletedSubscriber
             this.customerDataStore = customerDataStore;
         }
 
-        public async void Poll(object sender, EventArgs eventArgs)
+        public void Poll(object sender, EventArgs eventArgs)
         {
-            var response = await eventGetter.Get(url, this.start, this.chunkSize);
+            var response = eventGetter.Get(url, this.start, this.chunkSize);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 HandleEvents(response.Content);
+            else
+                Console.WriteLine($"Response:StatusCode: {response?.StatusCode}");
         }
         
         private void HandleEvents(string content)

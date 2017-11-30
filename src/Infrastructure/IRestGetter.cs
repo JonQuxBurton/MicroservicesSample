@@ -1,10 +1,9 @@
-﻿using System.Threading.Tasks;
-using RestSharp;
+﻿using RestSharp;
 
 namespace Infrastructure.Rest
 {
     public interface IRestGetter
     {
-        Task<IRestResponse> Get(IRestRequest restRequest);
+        IRestResponse Get(IRestRequest restRequest);
     }
 }

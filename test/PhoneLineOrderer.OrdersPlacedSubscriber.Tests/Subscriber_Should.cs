@@ -34,11 +34,11 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber.Tests
             var eventGetterMock = new Mock<IEventGetter>();
             eventGetterMock.Setup(
                 x => x.Get("PhoneLineOrdersPlaced", 0, 100))
-                    .Returns(Task.FromResult<IRestResponse>(new RestResponse()
+                    .Returns(new RestResponse()
                     {
                         StatusCode = System.Net.HttpStatusCode.OK,
                         Content = serializedEvents
-                    }));
+                    });
             var guidCreatorMock = new Mock<IGuidCreator>();
             guidCreatorMock.Setup(x => x.Create())
                 .Returns(expectedPhoneLineOrder.reference);

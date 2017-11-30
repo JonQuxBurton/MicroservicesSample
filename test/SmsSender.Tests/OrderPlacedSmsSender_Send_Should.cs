@@ -5,10 +5,12 @@ using Moq;
 using RestSharp;
 using SmsSender.Data;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace SmsSender.Tests
 {
+#pragma warning disable AvoidAsyncVoid // Avoid async void
     public class OrderPlacedSmsSender_Send_Should
     {
         private Customer expectedCustomer;
@@ -32,7 +34,7 @@ namespace SmsSender.Tests
             smsSenderDataStoreMock = new Mock<ISmsSenderDataStore>();
             webServiceGetterMock = new Mock<IWebServiceGetter>();
             webServiceGetterMock.Setup(x => x.Get($"/customers/phonelines/{expectedPhoneLineId}"))
-                .Returns(new RestResponse() { StatusCode = System.Net.HttpStatusCode.OK, Content = "Content" });
+                .Returns(Task.FromResult<IRestResponse>(new RestResponse() { StatusCode = System.Net.HttpStatusCode.OK, Content = "Content" }));
             deserializerMock = new Mock<IDeserializer>();
             deserializerMock.Setup(x => x.Deserialize<Customer>("Content"))
                 .Returns(expectedCustomer);
@@ -42,37 +44,38 @@ namespace SmsSender.Tests
         }
 
         [Fact]
-        public void SendSms()
+        public async void SendSms()
         {
             var sut = new OrderPlacedSmsSender(smsSenderDataStoreMock.Object, webServiceGetterMock.Object, deserializerMock.Object, dateTimeOffsetCreatorMock.Object);
 
-            sut.Send(expectedPhoneLineId);
+            await sut.Send(expectedPhoneLineId);
 
             smsSenderDataStoreMock.Verify(x => x.Send(expectedCustomer, OrderPlacedSmsSender.TextMessage, expectedDateTimeOffset), Times.Once);
         }
 
         [Fact]
-        public void ReturnTrue()
+        public async void ReturnTrue()
         {
             var sut = new OrderPlacedSmsSender(smsSenderDataStoreMock.Object, webServiceGetterMock.Object, deserializerMock.Object, dateTimeOffsetCreatorMock.Object);
 
-            var actual = sut.Send(expectedPhoneLineId);
+            var actual = await sut.Send(expectedPhoneLineId);
 
             Assert.True(actual);
         }
 
         [Fact]
-        public void ReturnFalseWhenCannotGetPhoneLine()
+        public async void ReturnFalseWhenCannotGetPhoneLine()
         {
             webServiceGetterMock.Setup(x => x.Get(It.IsAny<string>()))
-                .Returns(new RestResponse { StatusCode = System.Net.HttpStatusCode.InternalServerError });
+                .Returns(Task.FromResult<IRestResponse>(new RestResponse { StatusCode = System.Net.HttpStatusCode.InternalServerError }));
 
             var sut = new OrderPlacedSmsSender(smsSenderDataStoreMock.Object, webServiceGetterMock.Object, deserializerMock.Object, dateTimeOffsetCreatorMock.Object);
 
-            var actual = sut.Send(expectedPhoneLineId);
+            var actual = await sut.Send(expectedPhoneLineId);
 
             Assert.False(actual);
             smsSenderDataStoreMock.Verify(x => x.Send(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>()), Times.Never);
         }
     }
+#pragma warning restore AvoidAsyncVoid // Avoid async void
 }
