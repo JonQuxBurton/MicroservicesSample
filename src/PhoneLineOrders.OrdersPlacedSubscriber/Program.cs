@@ -32,8 +32,9 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber
                 Policy.Handle<Exception>().WaitAndRetry(3, attempt =>
                      TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt)));
 
-            var client = new RestClient(appSettings.CustomersWebServiceUrl);
-            var eventGetter = new EventGetter(client);
+            var restGetterFactory = new RestGetterFactory();
+            var restGetter = restGetterFactory.Create(appSettings.CustomersWebServiceUrl);
+            var eventGetter = new EventGetter(restGetter);
             var orderSender = new PhoneLineOrderSender(new PhoneLineOrdererDataStore(options), 
                 options, 
                 new RestPosterFactory(exponentialRetryPolicy),

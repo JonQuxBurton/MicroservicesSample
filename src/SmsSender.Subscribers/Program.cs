@@ -30,8 +30,10 @@ namespace SmsSender.Subscribers
                 Policy.Handle<Exception>().WaitAndRetry(3, attempt =>
                      TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt)));
 
+            var restGetterFactory = new RestGetterFactory();
+            var restGetter = restGetterFactory.Create(appSettings.CustomersMicroserviceUrl);
+            var eventGetter = new EventGetter(restGetter);
             var client = new RestClient(appSettings.CustomersMicroserviceUrl);
-            var eventGetter = new EventGetter(client);
             var webServiceGetter = new WebServiceGetter(client, exponentialRetryPolicy);
             
             var orderPlacedSmsSender = new OrderPlacedSmsSender(
@@ -45,8 +47,8 @@ namespace SmsSender.Subscribers
             phoneLineOrdersPlacedSubscriberTimer.Target += phoneLineOrdersPlacedSubscriber.Poll;
             phoneLineOrdersPlacedSubscriberTimer.Start();
 
-            var phoneLineOrdererClient = new RestClient(appSettings.PhoneLineOrdererMicroserviceUrl);
-            var phoneLineOrdersCompletedEventGetter = new EventGetter(phoneLineOrdererClient);
+            var phoneLineOrdererRestGetter = restGetterFactory.Create(appSettings.CustomersMicroserviceUrl);
+            var phoneLineOrdersCompletedEventGetter = new EventGetter(phoneLineOrdererRestGetter);
 
             var phoneLineOrdersCompletedSmsSender = new OrderCompletedSmsSender(
                 new Data.SmsSenderDataStore(options),

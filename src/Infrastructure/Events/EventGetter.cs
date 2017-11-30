@@ -1,14 +1,15 @@
-﻿using RestSharp;
+﻿using Infrastructure.Rest;
+using RestSharp;
 
 namespace Infrastructure.Events
 {
     public class EventGetter : IEventGetter
     {
-        private readonly IRestClient restClient;
+        private readonly IRestGetter restGetter;
 
-        public EventGetter(IRestClient restClient)
+        public EventGetter(IRestGetter restGetter)
         {
-            this.restClient = restClient;
+            this.restGetter = restGetter;
         }
 
         public IRestResponse Get(string url, long start, int chunkSize)
@@ -18,7 +19,7 @@ namespace Infrastructure.Events
             request.AddQueryParameter("start", start.ToString());
             request.AddQueryParameter("end", (start + chunkSize).ToString());
 
-            return this.restClient.Execute(request);
+            return this.restGetter.Get(request);
         }
     }
 }

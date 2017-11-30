@@ -1,6 +1,7 @@
 ﻿using Polly;
 using RestSharp;
 using System;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Rest
 {
@@ -15,7 +16,7 @@ namespace Infrastructure.Rest
             this.policy = policy;
         }
 
-        public IRestResponse Post(string resource, object body)
+        public async Task<IRestResponse> Post(string resource, object body)
         {
             var request = new RestRequest(resource, Method.POST);
             request.AddHeader("Content-type", "application/json");
@@ -23,7 +24,7 @@ namespace Infrastructure.Rest
 
             IRestResponse response = null;
 
-            this.policy.Execute(() =>
+            await this.policy.Execute(async () =>
             {
                 response = this.restClient.Execute(request);
             });

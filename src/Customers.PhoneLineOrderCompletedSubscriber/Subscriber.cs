@@ -26,6 +26,8 @@ namespace Customers.PhoneLineOrderCompletedSubscriber
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 HandleEvents(response.Content);
+            else
+                Console.WriteLine($"Response:StatusCode: {response?.StatusCode}");
         }
         
         private void HandleEvents(string content)

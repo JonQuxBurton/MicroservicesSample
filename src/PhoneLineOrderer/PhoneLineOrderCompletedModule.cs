@@ -2,6 +2,7 @@
 using Nancy.ModelBinding;
 using PhoneLineOrderer.Data;
 using PhoneLineOrderer.Events;
+using System;
 
 namespace PhoneLineOrderer
 {
@@ -11,19 +12,27 @@ namespace PhoneLineOrderer
         {
             Post("/PhoneLineOrderCompleted", x => {
 
-                var phoneLineOrderCompleted = this.Bind<Resources.PhoneLineOrderCompleted>();
-
-                var phoneLineOrder = phoneLineOrdererDataStore.GetByReference(phoneLineOrderCompleted.Reference);
-
-                orderCompletedEventPublisher.Publish(new PhoneLineOrderCompletedEvent
+                try
                 {
-                    PhoneLineId = phoneLineOrder.PhoneLineId,
-                    Status = phoneLineOrderCompleted.Status,
-                    PhoneNumber = phoneLineOrderCompleted.PhoneNumber
-                });
+                    var phoneLineOrderCompleted = this.Bind<Resources.PhoneLineOrderCompleted>();
 
-                phoneLineOrdererDataStore.Receive(phoneLineOrderCompleted);
+                    var phoneLineOrder = phoneLineOrdererDataStore.GetByReference(phoneLineOrderCompleted.Reference);
 
+                    orderCompletedEventPublisher.Publish(new PhoneLineOrderCompletedEvent
+                    {
+                        PhoneLineId = phoneLineOrder.PhoneLineId,
+                        Status = phoneLineOrderCompleted.Status,
+                        PhoneNumber = phoneLineOrderCompleted.PhoneNumber
+                    });
+
+                    phoneLineOrdererDataStore.Receive(phoneLineOrderCompleted);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+
+                    return HttpStatusCode.InternalServerError;
+                }
                 return HttpStatusCode.OK;
             });
         }

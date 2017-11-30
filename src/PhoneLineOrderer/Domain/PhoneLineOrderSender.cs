@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using PhoneLineOrderer.Config;
 using PhoneLineOrderer.Data;
 using PhoneLineOrderer.Entities;
+using System.Threading.Tasks;
 
 namespace PhoneLineOrderer.Domain
 {
@@ -25,7 +26,7 @@ namespace PhoneLineOrderer.Domain
             this.fakeBtWebServiceUrl = appSettings.Value?.FakeBtWebServiceUrl;
         }
 
-        public bool Send(Resources.PhoneLineOrder phoneLineOrder)
+        public async Task<bool> Send(Resources.PhoneLineOrder phoneLineOrder)
         {
             var phoneLineOrderData = new PhoneLineOrder
             {
@@ -41,23 +42,22 @@ namespace PhoneLineOrderer.Domain
 
             var restPoster = this.restPosterFactory.Create(this.fakeBtWebServiceUrl);
 
-            var response = restPoster.Post("PhoneLineOrders", new
+            var response = await restPoster.Post("PhoneLineOrders", new
             {
                 HouseNumber = phoneLineOrder.HouseNumber,
                 Postcode = phoneLineOrder.Postcode,
                 Reference = phoneLineOrder.Reference
             });
 
-            if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
+            if (response?.StatusCode == System.Net.HttpStatusCode.Accepted)
             {
                 this.phoneLineOrdersDataStore.Sent(id);
+                return true;
             }
-            else
-            {
-                this.phoneLineOrdersDataStore.Failed(id);
-            }
+ 
+            this.phoneLineOrdersDataStore.Failed(id);
 
-            return response.StatusCode == System.Net.HttpStatusCode.Accepted;
+            return false;
         }
     }
 }

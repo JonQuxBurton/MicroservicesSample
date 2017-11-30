@@ -6,6 +6,7 @@ using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Customers.PhoneLineOrderCompletedSubscriber.Tests
@@ -26,8 +27,8 @@ namespace Customers.PhoneLineOrderCompletedSubscriber.Tests
             var serializedEvents = JsonConvert.SerializeObject(events.AsEnumerable());
 
             var customerDataStoreMock = new Mock<ICustomerDataStore>();
-            var restClientMock = new Mock<IEventGetter>();
-            restClientMock.Setup(
+            var eventGetterMock = new Mock<IEventGetter>();
+            eventGetterMock.Setup(
                 x => x.Get("PhoneLineOrdersCompleted", 0, 100))
                     .Returns(new RestResponse()
                     {
@@ -35,7 +36,7 @@ namespace Customers.PhoneLineOrderCompletedSubscriber.Tests
                         Content = serializedEvents
                     });
 
-            var sut = new Subscriber(restClientMock.Object, customerDataStoreMock.Object);
+            var sut = new Subscriber(eventGetterMock.Object, customerDataStoreMock.Object);
 
             sut.Poll(null, new EventArgs());
 

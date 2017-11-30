@@ -8,6 +8,7 @@ using PhoneLineOrderer.Domain;
 using PhoneLineOrderer.Entities;
 using RestSharp;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace PhoneLineOrderer.Tests.Domain
@@ -15,11 +16,11 @@ namespace PhoneLineOrderer.Tests.Domain
     public class PhoneLineOrderSender_Send_Should
     {
         [Fact]
-        public void SendOrderToWholesaler()
+        public async Task SendOrderToWholesalerAsync()
         {
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrders", It.IsAny<object>()))
-                .Returns(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted });
+                .Returns(Task.FromResult<IRestResponse>(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted }));
 
             var restPosterFactoryMock = new Mock<IRestPosterFactory>();
             restPosterFactoryMock.Setup(x => x.Create("FakeBtWebServiceUrl"))
@@ -31,13 +32,13 @@ namespace PhoneLineOrderer.Tests.Domain
 
             var sut = new PhoneLineOrderSender(new Mock<IPhoneLineOrdererDataStore>().Object, options, restPosterFactoryMock.Object, new Mock<IDateTimeOffsetCreator>().Object);
 
-            sut.Send(new Resources.PhoneLineOrder());
+            await sut.Send(new Resources.PhoneLineOrder());
             
             restPosterMock.Verify(x => x.Post("PhoneLineOrders", It.IsAny<object>()));
         }
 
         [Fact]
-        public void SaveToDataStore()
+        public async Task SaveToDataStoreAsync()
         {
             var expectedPhoneLineOrder = new Resources.PhoneLineOrder
             {
@@ -54,7 +55,7 @@ namespace PhoneLineOrderer.Tests.Domain
 
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrders", It.IsAny<object>()))
-                .Returns(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted });
+                .Returns(Task.FromResult<IRestResponse>(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted }));
 
             var restPosterFactoryMock = new Mock<IRestPosterFactory>();
             restPosterFactoryMock.Setup(x => x.Create("FakeBtWebServiceUrl"))
@@ -69,7 +70,7 @@ namespace PhoneLineOrderer.Tests.Domain
             
             var sut = new PhoneLineOrderSender(phoneLineOrdersDataStore.Object, options, restPosterFactoryMock.Object, dateTimeOffsetCreatorMock.Object);
 
-            sut.Send(expectedPhoneLineOrder);
+            await sut.Send(expectedPhoneLineOrder);
 
             phoneLineOrdersDataStore.Verify(x => x.Add(
                 It.Is<PhoneLineOrder>(
@@ -83,7 +84,7 @@ namespace PhoneLineOrderer.Tests.Domain
         }
 
         [Fact]
-        public void ReturnTrueWhenSendIsSuccessful()
+        public async Task ReturnTrueWhenSendIsSuccessfulAsync()
         {
             var options = Options.Create(new AppSettings()
             {
@@ -92,7 +93,7 @@ namespace PhoneLineOrderer.Tests.Domain
 
             var restPosterMock = new Mock<IRestPoster>();
             restPosterMock.Setup(x => x.Post("PhoneLineOrders", It.IsAny<object>()))
-                .Returns(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted });
+                .Returns(Task.FromResult<IRestResponse>(new RestResponse { StatusCode = System.Net.HttpStatusCode.Accepted }));
 
             var restPosterFactoryMock = new Mock<IRestPosterFactory>();
             restPosterFactoryMock.Setup(x => x.Create("FakeBtWebServiceUrl"))
@@ -100,7 +101,7 @@ namespace PhoneLineOrderer.Tests.Domain
 
             var sut = new PhoneLineOrderSender(new Mock<IPhoneLineOrdererDataStore>().Object, options, restPosterFactoryMock.Object, new Mock<IDateTimeOffsetCreator>().Object);
 
-            var actual = sut.Send(new Resources.PhoneLineOrder());
+            var actual = await sut.Send(new Resources.PhoneLineOrder());
 
             Assert.True(actual);
         }

@@ -19,7 +19,7 @@ namespace FakeBt.OrderUpdater
             this.phoneLineOrdererUrl = appSettings.Value.PhoneLineOrdererWebServiceUrl;
         }
 
-        public void Update(object sender, EventArgs eventArgs)
+        public async void Update(object sender, EventArgs eventArgs)
         {
             var restPoster = this.restPosterFactory.Create(phoneLineOrdererUrl);
 
@@ -29,19 +29,20 @@ namespace FakeBt.OrderUpdater
             {
                 pendingOrder.PhoneNumber = $"0114{pendingOrder.Id.ToString().PadLeft(7, '0')}";
 
-                var response = restPoster.Post("PhoneLineOrderCompleted", new
+                var response = await restPoster.Post("PhoneLineOrderCompleted", new
                 {
                     Reference = pendingOrder.Reference,
                     Status = "Complete",
                     PhoneNumber = pendingOrder.PhoneNumber
                 });
                 
-                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                if (response != null && response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
                     this.btOrdersDataStore.Complete(pendingOrder);
                 }
                 else
                 {
+                    Console.WriteLine("Fail: " + response?.StatusCode);
                     this.btOrdersDataStore.Fail(pendingOrder.Id);
                 }
             }

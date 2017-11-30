@@ -1,9 +1,9 @@
-﻿using Infrastructure.Rest;
+﻿using System.Threading.Tasks;
 
 namespace PhoneLineOrderer.Domain
 {
     public interface IPhoneLineOrderSender
     {
-        bool Send(Resources.PhoneLineOrder phoneLineOrder);
+        Task<bool> Send(Resources.PhoneLineOrder phoneLineOrder);
     }
 }
