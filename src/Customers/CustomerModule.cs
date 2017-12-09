@@ -9,9 +9,6 @@ namespace Customers
     {
         public CustomerModule(ICustomerDataStore customerStore, IPhoneLineOrdersPlacedEventPublisher phoneLineOrdersPlacedEventPublisher) : base("/customer")
         {
-            Get("/Status", x => {
-                return HttpStatusCode.OK;
-            });
             base.Post("/{id}/PhoneLines", x =>
             {
                 var phoneLineOrder = this.Bind<Resources.PhoneLineOrder>();

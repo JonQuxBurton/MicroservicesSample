@@ -24,6 +24,9 @@ namespace Customers.Data
                 var dbCustomers = conn.Query(@"select * from Customers.Customers where Id=@Id", new { Id = id });
                 var dbCustomer = dbCustomers.FirstOrDefault();
 
+                if (dbCustomer == null)
+                    return null;
+
                 return new Customer { Id = dbCustomer.Id, Name = dbCustomer.Name };
             }
         }
