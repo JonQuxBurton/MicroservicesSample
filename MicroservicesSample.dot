@@ -1,0 +1,19 @@
+digraph MicroservicesSample {
+    rankdir=LR;
+    node [fontsize=20];
+
+    ui[label=""]
+    cm[label="\nCustomers \nMicroservice\n\n",shape="hexagon"]
+    plo[label="\nPhone Line \nOrderer \nMicroservice\n",shape="hexagon"]
+    fb[label="\nFake BT \nMicroservice\n\n",shape="hexagon"]
+    ss[label="\nSMS Sender \nMicroservice\n\n",shape="hexagon"]
+    
+    ui -> cm[label="Order Phone Line"]
+    ui -> cm[label="Create Customer"]
+    cm -> plo[style=dashed,label="Phone Line Order Placed"];
+    fb -> plo[style=dashed,label="Phone Line Order Completed"];
+    plo -> fb[label="Order Phone Line"];
+    plo -> cm[style="dashed",label="\nPhone Line Order Completed"];
+    plo -> ss[style="dashed",label="\n\nPhone Line Order Completed"];
+    cm -> ss[style=dashed,label="\n\nPhone Line Order Placed"];
+}
