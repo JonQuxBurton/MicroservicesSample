@@ -30,7 +30,7 @@ Customers (Customers microservice)
 
 ...from a Wholesaler (FakeBt microservice)
 
-[[https://github.com/JonQuxBurton/MicroservicesSample/blob/master/MicroservicesSample.png|alt="Domain"]]
+![alt text](https://raw.githubusercontent.com/JonQuxBurton/MicroservicesSample/master/MicroservicesSample.png)
 
 Data
 ----
