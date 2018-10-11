@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  customers:
+    image: ${DOCKER_REGISTRY}customers
+    build:
+      context: .
+      dockerfile: src/Customers/Dockerfile
+
+  fakebt:
+    image: ${DOCKER_REGISTRY}fakebt
+    build:
+      context: .
+      dockerfile: src/FakeBt/Dockerfile
+
+
+  phonelineorderer:
+    image: ${DOCKER_REGISTRY}phonelineorderer
+    build:
+      context: .
+      dockerfile: src/PhoneLineOrderer/Dockerfile
+

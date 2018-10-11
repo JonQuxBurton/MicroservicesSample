@@ -16,7 +16,6 @@ namespace FakeBt
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
-                .UseUrls("http://localhost:5003")
                 .Build();
 
             host.Run();
