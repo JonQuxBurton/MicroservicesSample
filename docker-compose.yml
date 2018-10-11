@@ -1,6 +1,9 @@
 version: '3.4'
 
 services:
+  sql.data:
+    image: microsoft/mssql-server-linux:2017-latest
+
   customers:
     image: ${DOCKER_REGISTRY}customers
     build:
@@ -19,4 +22,11 @@ services:
     build:
       context: .
       dockerfile: src/PhoneLineOrderer/Dockerfile
+
+
+  phonelineorderer.ordersplacedsubscriber:
+    image: ${DOCKER_REGISTRY}phonelineordererordersplacedsubscriber
+    build:
+      context: .
+      dockerfile: src/PhoneLineOrders.OrdersPlacedSubscriber/Dockerfile
 

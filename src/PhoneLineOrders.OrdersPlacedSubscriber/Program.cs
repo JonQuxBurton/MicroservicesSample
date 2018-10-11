@@ -9,16 +9,19 @@ using PhoneLineOrderer.Config;
 using PhoneLineOrderer.Data;
 using PhoneLineOrderer.Domain;
 using Polly;
-using RestSharp;
 using System;
 using System.IO;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 
 namespace PhoneLineOrderer.OrdersPlacedSubscriber
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            var hostBuilder = new HostBuilder();
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json");
@@ -47,8 +50,7 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber
 
             Console.WriteLine("PhoneLineOrderer.OrdersPlacedSubscriber is running.");
 
-            Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();
+            await hostBuilder.RunConsoleAsync();
         }
     }
 }

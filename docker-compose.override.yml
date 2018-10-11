@@ -1,6 +1,16 @@
 version: '3.4'
 
 services:
+  sql.data:
+      environment:
+        - SA_PASSWORD=Pass@word
+        - ACCEPT_EULA=Y
+      ports:
+        - "5433:1433"    # Important: In a production environment your should remove the external port
+      volumes:
+        - /var/opt/mssql
+        # we copy our scripts onto the container
+        - ./sql:/usr/src/app 
   customers:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
