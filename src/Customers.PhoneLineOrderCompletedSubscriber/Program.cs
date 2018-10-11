@@ -5,16 +5,19 @@ using Infrastructure.Rest;
 using Infrastructure.Timers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using RestSharp;
 using System;
 using System.IO;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 
 namespace Customers.PhoneLineOrderCompletedSubscriber
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            var hostBuilder = new HostBuilder();
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json");
@@ -35,8 +38,7 @@ namespace Customers.PhoneLineOrderCompletedSubscriber
 
             Console.WriteLine("Customers.PhoneLineOrderCompletedSubscriber is running.");
 
-            Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();
+            await hostBuilder.RunConsoleAsync();
         }
     }
 }

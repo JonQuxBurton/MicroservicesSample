@@ -30,3 +30,24 @@ services:
       context: .
       dockerfile: src/PhoneLineOrders.OrdersPlacedSubscriber/Dockerfile
 
+
+  customers.phonelineordercompletedsubscriber:
+    image: ${DOCKER_REGISTRY}customersphonelineordercompletedsubscriber
+    build:
+      context: .
+      dockerfile: src/Customers.PhoneLineOrderCompletedSubscriber/Dockerfile
+
+
+  fakebt.orderupdater:
+    image: ${DOCKER_REGISTRY}fakebtorderupdater
+    build:
+      context: .
+      dockerfile: src/FakeBt.OrderUpdater/Dockerfile
+
+
+  smssender.subscribers:
+    image: ${DOCKER_REGISTRY}smssendersubscribers
+    build:
+      context: .
+      dockerfile: src/SmsSender.Subscribers/Dockerfile
+
