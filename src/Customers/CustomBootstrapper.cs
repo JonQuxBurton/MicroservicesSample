@@ -1,4 +1,5 @@
-﻿using Customers.Config;
+﻿using System;
+using Customers.Config;
 using EventStore.ClientAPI;
 using Infrastructure.Events;
 using Infrastructure.Guid;
@@ -10,6 +11,11 @@ using Nancy;
 using Nancy.Bootstrapper;
 using Nancy.TinyIoc;
 using System.Net;
+using Customers.Data;
+using Nancy.Configuration;
+using Nancy.Diagnostics;
+using Polly;
+using Polly.Retry;
 
 namespace Customers
 {
@@ -22,12 +28,42 @@ namespace Customers
             this.applicationBuilder = applicationBuilder;
         }
 
+        public override void Configure(INancyEnvironment environment)
+        {
+            environment.Tracing(
+                enabled: true,
+                displayErrorTraces: true);
+        }
+
         protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
         {
-            var connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Loopback, 1113));
-            connection.ConnectAsync().Wait();
-
             IOptions<AppSettings> options = this.applicationBuilder.ApplicationServices.GetService<IOptions<AppSettings>>();
+
+            Console.WriteLine("AppSettings:");
+            Console.WriteLine($"ConnectionString: {options.Value.ConnectionString}");
+            Console.WriteLine($"EventStoreUrl: {options.Value.EventStoreUrl}");
+
+            var addresses = System.Net.Dns.GetHostAddresses("eventstore");
+
+            Console.WriteLine($"EventStoreIpAddress: {addresses[0]}");
+
+
+            var connection = EventStoreConnection.Create(new IPEndPoint(addresses[0], 1113));
+
+            //var connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse(options.Value.EventStoreIpAddress), int.Parse(options.Value.EventStorePort)));
+            //var connection = EventStoreConnection.Create(options.Value.EventStoreUrl);
+
+            RetryPolicy retry = Policy
+                .Handle<Exception>()
+                .WaitAndRetry(new[]
+                {
+                    TimeSpan.FromSeconds(20),
+                    TimeSpan.FromSeconds(40),
+                    TimeSpan.FromSeconds(80)
+                });
+
+            retry.Execute(() => connection.ConnectAsync().Wait(10 * 1000));
+            
             container.Register(options);
 
             container.Register(connection);
@@ -37,6 +73,11 @@ namespace Customers
             container.Register<Infrastructure.Serialization.ISerializer, JsonSerializer>().AsSingleton();
             container.Register<IDeserializer, JsonDeserializer>().AsSingleton();
             container.Register<IGuidCreator, GuidCreator>();
+
+            var dataStore = new CustomerDataStore(options);
+            
+            retry.Execute(() => dataStore.CreateTables());
+            //dataStore.CreateTables();
         }
     }
 }

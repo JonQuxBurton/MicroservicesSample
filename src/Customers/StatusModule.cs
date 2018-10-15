@@ -25,7 +25,7 @@ namespace Customers
                     Connectivity = new
                     {
                         Database = GetDatabaseConnectivity(customerStore),
-                        PhoneLineOrdererService = GetPhoneLineOrdererServiceConnectivity(appSettings),
+                        //PhoneLineOrdererService = GetPhoneLineOrdererServiceConnectivity(appSettings),
                         PhoneLineOrdersPlacedStream = GetPhoneLineOrdersPlacedStreamConnectivity(phoneLineOrdersPlacedEventGetter)
                     }
                 };
@@ -39,8 +39,10 @@ namespace Customers
                 phoneLineOrdersPlacedEventGetter.GetEvents(1, 2).ToList();
                 return true;
             }
-            catch
-            { }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex}");
+            }
 
             return false;
         }

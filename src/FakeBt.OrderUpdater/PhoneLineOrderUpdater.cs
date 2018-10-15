@@ -21,30 +21,37 @@ namespace FakeBt.OrderUpdater
 
         public async void Update(object sender, EventArgs eventArgs)
         {
-            var restPoster = this.restPosterFactory.Create(phoneLineOrdererUrl);
-
-            var pendingOrders = this.btOrdersDataStore.GetNew();
-
-            foreach (var pendingOrder in pendingOrders)
+            try
             {
-                pendingOrder.PhoneNumber = $"0114{pendingOrder.Id.ToString().PadLeft(7, '0')}";
+                var restPoster = this.restPosterFactory.Create(phoneLineOrdererUrl);
 
-                var response = await restPoster.Post("PhoneLineOrderCompleted", new
+                var pendingOrders = this.btOrdersDataStore.GetNew();
+
+                foreach (var pendingOrder in pendingOrders)
                 {
-                    Reference = pendingOrder.Reference,
-                    Status = "Complete",
-                    PhoneNumber = pendingOrder.PhoneNumber
-                });
-                
-                if (response != null && response.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    this.btOrdersDataStore.Complete(pendingOrder);
+                    pendingOrder.PhoneNumber = $"0114{pendingOrder.Id.ToString().PadLeft(7, '0')}";
+
+                    var response = await restPoster.Post("PhoneLineOrderCompleted", new
+                    {
+                        Reference = pendingOrder.Reference,
+                        Status = "Complete",
+                        PhoneNumber = pendingOrder.PhoneNumber
+                    });
+
+                    if (response != null && response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        this.btOrdersDataStore.Complete(pendingOrder);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Fail: " + response?.StatusCode);
+                        this.btOrdersDataStore.Fail(pendingOrder.Id);
+                    }
                 }
-                else
-                {
-                    Console.WriteLine("Fail: " + response?.StatusCode);
-                    this.btOrdersDataStore.Fail(pendingOrder.Id);
-                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex}");
             }
         }
     }

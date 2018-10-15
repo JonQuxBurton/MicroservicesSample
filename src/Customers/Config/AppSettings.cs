@@ -5,5 +5,6 @@
         public string ConnectionString { get; set; }
         public string PhoneLineOrdersPlacedStream { get; set; }
         public string PhoneLineOrdererServiceUrl { get; set; }
+        public string EventStoreUrl { get; set; }
     }
 }

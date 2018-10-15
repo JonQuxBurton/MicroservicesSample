@@ -7,24 +7,29 @@ services:
         - ACCEPT_EULA=Y
       ports:
         - "5433:1433"    # Important: In a production environment your should remove the external port
-      volumes:
-        - /var/opt/mssql
-        # we copy our scripts onto the container
-        - ./sql:/usr/src/app 
+ 
   customers:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      #- ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word
+      #- ConnectionString=${CUSTOMERS_DB:-Server=sql.da3ta;Initial Catalog=Microservices;User Id=sa;Password=Pass@word}
+      - EventStoreUrl=tcp://admin:changeit@eventstore:1113
     ports:
       - "5001:80"
 
-  phonelineorderer:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+  eventstore:
     ports:
-      - "5002:80"
+      - "1113:1113"
+      - "2113:2113"
 
-  fakebt:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5003:80"
+ # phonelineorderer:
+ #   environment:
+ #     - ASPNETCORE_ENVIRONMENT=Development
+ #   ports:
+ #     - "5002:80"
+ #
+ # fakebt:
+ #   environment:
+ #     - ASPNETCORE_ENVIRONMENT=Development
+ #   ports:
+ #     - "5003:80"
