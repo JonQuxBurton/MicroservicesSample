@@ -1,4 +1,5 @@
-﻿using Infrastructure.DateTimeUtilities;
+﻿using System;
+using Infrastructure.DateTimeUtilities;
 using Infrastructure.Rest;
 using Microsoft.Extensions.Options;
 using PhoneLineOrderer.Config;
@@ -28,6 +29,8 @@ namespace PhoneLineOrderer.Domain
 
         public async Task<bool> Send(Resources.PhoneLineOrder phoneLineOrder)
         {
+            Console.WriteLine("Send()...");
+
             var phoneLineOrderData = new PhoneLineOrder
             {
                 PhoneLineId = phoneLineOrder.PhoneLineId,
@@ -40,6 +43,8 @@ namespace PhoneLineOrderer.Domain
 
             var id = this.phoneLineOrdersDataStore.Add(phoneLineOrderData);
 
+            Console.WriteLine($"id: {id}");
+
             var restPoster = this.restPosterFactory.Create(this.fakeBtWebServiceUrl);
 
             var response = await restPoster.Post("PhoneLineOrders", new
@@ -48,6 +53,8 @@ namespace PhoneLineOrderer.Domain
                 Postcode = phoneLineOrder.Postcode,
                 Reference = phoneLineOrder.Reference
             });
+
+            Console.WriteLine($"response?.StatusCode: {response?.StatusCode}");
 
             if (response?.StatusCode == System.Net.HttpStatusCode.Accepted)
             {

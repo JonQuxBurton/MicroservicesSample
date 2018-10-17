@@ -22,12 +22,20 @@ services:
       - "1113:1113"
       - "2113:2113"
 
- # phonelineorderer:
- #   environment:
- #     - ASPNETCORE_ENVIRONMENT=Development
- #   ports:
- #     - "5002:80"
- #
+  phonelineorderer:
+    environment:
+      #- ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word
+      - CustomersWebServiceUrl=customers
+    ports:
+      - "5002:80"
+ 
+  phonelineorderer.ordersplacedsubscriber:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word
+      - CustomersWebServiceUrl=http://customers
+
  # fakebt:
  #   environment:
  #     - ASPNETCORE_ENVIRONMENT=Development

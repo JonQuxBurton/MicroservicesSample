@@ -14,6 +14,8 @@ using System;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Infrastructure.DateTimeUtilities;
+using PhoneLineOrderer.Data;
+using Polly.Retry;
 
 namespace PhoneLineOrderer
 {
@@ -28,7 +30,19 @@ namespace PhoneLineOrderer
 
         protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
         {
-            var connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Loopback, 1113));
+            RetryPolicy retry = Policy
+                .Handle<Exception>()
+                .WaitAndRetry(new[]
+                {
+                    TimeSpan.FromSeconds(20),
+                    TimeSpan.FromSeconds(40),
+                    TimeSpan.FromSeconds(80)
+                });
+
+            var addresses = System.Net.Dns.GetHostAddresses("eventstore");
+            var connection = EventStoreConnection.Create(new IPEndPoint(addresses[0], 1113));
+
+            //var connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Loopback, 1113));
             connection.ConnectAsync().Wait();
 
             container.Register(connection);
@@ -49,6 +63,10 @@ namespace PhoneLineOrderer
             container.Register<IDeserializer, JsonDeserializer>().AsSingleton();
             container.Register<IGuidCreator, GuidCreator>();
             container.Register<IDateTimeOffsetCreator, DateTimeOffsetCreator>();
+
+            var dataStore = new PhoneLineOrdererDataStore(options);
+
+            retry.Execute(() => dataStore.SetupDatabase());
         }
     }
 }

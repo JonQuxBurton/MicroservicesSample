@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using PhoneLineOrderer.Domain;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PhoneLineOrderer.OrdersPlacedSubscriber
 {
@@ -27,15 +28,24 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber
 
         public void Poll(object sender, EventArgs eventArgs)
         {
-            var response = eventGetter.Get(url, this.start, this.chunkSize);
+            try
+            {
+                var response = eventGetter.Get(url, this.start, this.chunkSize);
 
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                HandleEvents(response.Content);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    HandleEvents(response.Content);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex}");
+            }
         }
 
         private void HandleEvents(string content)
         {
             var events = JsonConvert.DeserializeObject<IEnumerable<Event>>(content);
+
+            Console.WriteLine($"events.Count(): {events.Count()}");
 
             foreach (var ev in events)
             {
