@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System;
+using Dapper;
 using FakeBt.Config;
 using FakeBt.Resources;
 using Microsoft.Extensions.Options;
@@ -18,6 +19,7 @@ namespace FakeBt.Data
         public BtOrdersDataStore(IOptions<AppSettings> appSettings)
         {
             this.connectionString = appSettings.Value.ConnectionString;
+            Console.WriteLine($"this.connectionString: {this.connectionString}");
         }
 
         public void SetupDatabase()
@@ -67,10 +69,13 @@ IF NOT (EXISTS (SELECT *
                  AND  TABLE_NAME = '{PhoneLineOrdersTableName}'))
 BEGIN
     CREATE TABLE [{SchemaName}].[{PhoneLineOrdersTableName}] (
-    [Id] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    [Name] [nchar](100) NOT NULL,
-    [MobilePhoneNumber] [nvarchar](50) NULL
-    )
+	[Id] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[PhoneNumber] [nvarchar](50) NULL,
+	[Status] [nvarchar](50) NOT NULL,
+	[HouseNumber] [int] NOT NULL,
+	[Postcode] [nvarchar](50) NOT NULL,
+	[Reference] [uniqueidentifier] NOT NULL
+)
 END
                     ".Replace("{SchemaName}", SchemaName)
                         .Replace("{PhoneLineOrdersTableName}", PhoneLineOrdersTableName);

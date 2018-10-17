@@ -13,12 +13,11 @@ services:
   eventstore:
     image: eventstore/eventstore
 
-#  fakebt:
-#    image: ${DOCKER_REGISTRY}fakebt
-#    build:
-#      context: .
-#      dockerfile: src/FakeBt/Dockerfile
-
+  fakebt:
+    image: ${DOCKER_REGISTRY}fakebt
+    build:
+      context: .
+      dockerfile: src/FakeBt/Dockerfile
 
   phonelineorderer:
     image: ${DOCKER_REGISTRY}phonelineorderer
@@ -26,31 +25,34 @@ services:
       context: .
       dockerfile: src/PhoneLineOrderer/Dockerfile
 
-
   phonelineorderer.ordersplacedsubscriber:
     image: ${DOCKER_REGISTRY}phonelineordererordersplacedsubscriber
     build:
       context: .
       dockerfile: src/PhoneLineOrders.OrdersPlacedSubscriber/Dockerfile
-#
-#
-#  customers.phonelineordercompletedsubscriber:
-#    image: ${DOCKER_REGISTRY}customersphonelineordercompletedsubscriber
-#    build:
-#      context: .
-#      dockerfile: src/Customers.PhoneLineOrderCompletedSubscriber/Dockerfile
-#
-#
-#  smssender.subscribers:
-#    image: ${DOCKER_REGISTRY}smssendersubscribers
-#    build:
-#      context: .
-#      dockerfile: src/SmsSender.Subscribers/Dockerfile
-#
-#
-#  fakebt.orderupdater:
-#    image: ${DOCKER_REGISTRY}fakebtorderupdater
-#    build:
-#      context: .
-#      dockerfile: src/FakeBt.OrderUpdater/Dockerfile
-#
+
+  customers.phonelineordercompletedsubscriber:
+    image: ${DOCKER_REGISTRY}customersphonelineordercompletedsubscriber
+    build:
+      context: .
+      dockerfile: src/Customers.PhoneLineOrderCompletedSubscriber/Dockerfile
+
+  smssender:
+    image: ${DOCKER_REGISTRY}smssender
+    build:
+      context: .
+      dockerfile: src/SmsSender/Dockerfile
+
+  smssender.subscribers:
+    image: ${DOCKER_REGISTRY}smssendersubscribers
+    build:
+      context: .
+      dockerfile: src/SmsSender.Subscribers/Dockerfile
+
+  fakebt.orderupdater:
+    image: ${DOCKER_REGISTRY}fakebtorderupdater
+    build:
+      context: .
+      dockerfile: src/FakeBt.OrderUpdater/Dockerfile
+
+

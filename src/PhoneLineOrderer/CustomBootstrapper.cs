@@ -39,11 +39,19 @@ namespace PhoneLineOrderer
                     TimeSpan.FromSeconds(80)
                 });
 
-            var addresses = System.Net.Dns.GetHostAddresses("eventstore");
-            var connection = EventStoreConnection.Create(new IPEndPoint(addresses[0], 1113));
+            IEventStoreConnection connection = null;
+
+            retry.Execute(() =>
+            {
+                var addresses = System.Net.Dns.GetHostAddresses("eventstore");
+                connection = EventStoreConnection.Create(new IPEndPoint(addresses[0], 1113));
+                connection.ConnectAsync().Wait(10 * 1000);
+            });
+
+            //var connection = EventStoreConnection.Create(new IPEndPoint(addresses[0], 1113));
 
             //var connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Loopback, 1113));
-            connection.ConnectAsync().Wait();
+            //connection.ConnectAsync().Wait();
 
             container.Register(connection);
 

@@ -43,15 +43,12 @@ namespace Customers
             Console.WriteLine($"ConnectionString: {options.Value.ConnectionString}");
             Console.WriteLine($"EventStoreUrl: {options.Value.EventStoreUrl}");
 
-            var addresses = System.Net.Dns.GetHostAddresses("eventstore");
-
-            Console.WriteLine($"EventStoreIpAddress: {addresses[0]}");
-
-
-            var connection = EventStoreConnection.Create(new IPEndPoint(addresses[0], 1113));
+            //Console.WriteLine($"EventStoreIpAddress: {addresses[0]}");
 
             //var connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse(options.Value.EventStoreIpAddress), int.Parse(options.Value.EventStorePort)));
             //var connection = EventStoreConnection.Create(options.Value.EventStoreUrl);
+
+            IEventStoreConnection connection = null;
 
             RetryPolicy retry = Policy
                 .Handle<Exception>()
@@ -62,7 +59,12 @@ namespace Customers
                     TimeSpan.FromSeconds(80)
                 });
 
-            retry.Execute(() => connection.ConnectAsync().Wait(10 * 1000));
+            retry.Execute(() =>
+            {
+                var addresses = System.Net.Dns.GetHostAddresses("eventstore");
+                connection = EventStoreConnection.Create(new IPEndPoint(addresses[0], 1113));
+                connection.ConnectAsync().Wait(10 * 1000);
+            });
             
             container.Register(options);
 
@@ -77,7 +79,6 @@ namespace Customers
             var dataStore = new CustomerDataStore(options);
             
             retry.Execute(() => dataStore.CreateTables());
-            //dataStore.CreateTables();
         }
     }
 }

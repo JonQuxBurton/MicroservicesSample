@@ -20,7 +20,8 @@ namespace FakeBt.OrderUpdater
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
+                .AddJsonFile("appsettings.json")
+                .AddEnvironmentVariables();
 
             IConfigurationRoot configuration = builder.Build();
 
@@ -40,6 +41,9 @@ namespace FakeBt.OrderUpdater
             recurringTimer.Start();
 
             Console.WriteLine("FakeBt.OrderUpdater is running.");
+
+            Console.WriteLine("AppSettings:");
+            Console.WriteLine($"ConnectionString: {options.Value.ConnectionString}");
 
             await hostBuilder.RunConsoleAsync();
         }

@@ -20,7 +20,8 @@ namespace Customers.PhoneLineOrderCompletedSubscriber
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
+                .AddJsonFile("appsettings.json")
+                .AddEnvironmentVariables();
 
             IConfigurationRoot configuration = builder.Build();
 
