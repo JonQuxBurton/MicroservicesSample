@@ -1,6 +1,11 @@
 version: '3.4'
 
 services:
+  eventstore:
+    ports:
+      - "1113:1113"
+      - "2113:2113"
+
   sql.data:
       environment:
         - SA_PASSWORD=Pass@word
@@ -11,21 +16,22 @@ services:
   customers:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=CustomersMicroservice;Password=Customers@123
       #- ConnectionString=${CUSTOMERS_DB:-Server=sql.da3ta;Initial Catalog=Microservices;User Id=sa;Password=Pass@word}
       - EventStoreUrl=tcp://admin:changeit@eventstore:1113
     ports:
       - "5001:80"
 
-  eventstore:
-    ports:
-      - "1113:1113"
-      - "2113:2113"
+  customers.phonelineordercompletedsubscriber:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=CustomersMicroservice;Password=Customers@123
+      - PhoneLineOrdererServiceUrl=http://phonelineorderer
 
   phonelineorderer:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=PhoneLineOrdererMicroservice;Password=PhoneLineOrderer@456
       - CustomersWebServiceUrl=customers
     ports:
       - "5002:80"
@@ -33,34 +39,28 @@ services:
   phonelineorderer.ordersplacedsubscriber:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=PhoneLineOrdererMicroservice;Password=PhoneLineOrderer@456
       - CustomersWebServiceUrl=http://customers
       - FakeBtWebServiceUrl=http://fakebt
 
-  customers.phonelineordercompletedsubscriber:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word  
-      - PhoneLineOrdererServiceUrl=http://phonelineorderer
-  
   smssender:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word  
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=SmsSenderMicroservice;Password=SmsSender@012  
     ports:
       - "5004:80"
 
   smssender.subscribers:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=SmsSenderMicroservice;Password=SmsSender@012  
       - CustomersMicroserviceUrl=http://customers
       - PhoneLineOrdererMicroserviceUrl=http://phonelineorderer
 
   fakebt:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=FakeBtMicroservice;Password=FakeBt@789
       - PhoneLineOrdererWebServiceUrl=http://phonelineorderer
     ports:
       - "5003:80"
@@ -68,5 +68,5 @@ services:
   fakebt.orderupdater:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=sa;Password=Pass@word
+      - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=FakeBtMicroservice;Password=FakeBt@789
       - PhoneLineOrdererWebServiceUrl=http://phonelineorderer

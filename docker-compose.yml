@@ -1,6 +1,9 @@
 version: '3.4'
 
 services:
+  eventstore:
+    image: eventstore/eventstore
+
   sql.data:
     image: mcr.microsoft.com/mssql/server
     build:
@@ -12,9 +15,6 @@ services:
     build:
       context: .
       dockerfile: src/Customers/Dockerfile
-
-  eventstore:
-    image: eventstore/eventstore
 
   fakebt:
     image: ${DOCKER_REGISTRY}fakebt
