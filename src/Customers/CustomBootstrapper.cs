@@ -75,10 +75,6 @@ namespace Customers
             container.Register<Infrastructure.Serialization.ISerializer, JsonSerializer>().AsSingleton();
             container.Register<IDeserializer, JsonDeserializer>().AsSingleton();
             container.Register<IGuidCreator, GuidCreator>();
-
-            var dataStore = new CustomerDataStore(options);
-            
-            retry.Execute(() => dataStore.CreateTables());
         }
     }
 }

@@ -3,6 +3,9 @@ version: '3.4'
 services:
   sql.data:
     image: mcr.microsoft.com/mssql/server
+    build:
+      context: .
+      dockerfile: src/DatabaseSetup/Dockerfile
 
   customers:
     image: ${DOCKER_REGISTRY}customers
@@ -54,5 +57,3 @@ services:
     build:
       context: .
       dockerfile: src/FakeBt.OrderUpdater/Dockerfile
-
-

@@ -61,10 +61,6 @@ namespace SmsSender
                     TimeSpan.FromSeconds(40),
                     TimeSpan.FromSeconds(80)
                 });
-
-            var dataStore = new SmsSenderDataStore(options);
-
-            retry.Execute(() => dataStore.SetupDatabase());
         }
     }
 }

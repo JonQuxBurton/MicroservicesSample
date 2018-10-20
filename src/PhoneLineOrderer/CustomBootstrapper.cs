@@ -71,10 +71,6 @@ namespace PhoneLineOrderer
             container.Register<IDeserializer, JsonDeserializer>().AsSingleton();
             container.Register<IGuidCreator, GuidCreator>();
             container.Register<IDateTimeOffsetCreator, DateTimeOffsetCreator>();
-
-            var dataStore = new PhoneLineOrdererDataStore(options);
-
-            retry.Execute(() => dataStore.SetupDatabase());
         }
     }
 }

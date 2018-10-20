@@ -21,73 +21,7 @@ namespace FakeBt.Data
             this.connectionString = appSettings.Value.ConnectionString;
             Console.WriteLine($"this.connectionString: {this.connectionString}");
         }
-
-        public void SetupDatabase()
-        {
-            using (var conn = new SqlConnection(connectionString.Replace("Initial Catalog=Microservices;", "")))
-            {
-                conn.Open();
-
-                var sql = @"
-if db_id('{databaseName}') is null
-BEGIN
-    CREATE DATABASE [{databaseName}]
-END
-
-".Replace("{databaseName}", databaseName);
-                conn.Execute(sql);
-            }
-
-            using (var conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                using (var tx = conn.BeginTransaction())
-                {
-                    var sql = @"
-IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = '{SchemaName}')
-BEGIN
-    EXEC( 'CREATE SCHEMA {SchemaName}' );
-END
-".Replace("{SchemaName}", SchemaName);
-
-                    conn.Execute(sql,
-                        new {Dummy = "Dummy"},
-                        tx);
-                    tx.Commit();
-                }
-            }
-
-            using (var conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                using (var tx = conn.BeginTransaction())
-                {
-                    var sql = @"
-IF NOT (EXISTS (SELECT * 
-                 FROM INFORMATION_SCHEMA.TABLES 
-                 WHERE TABLE_SCHEMA = '{SchemaName}' 
-                 AND  TABLE_NAME = '{PhoneLineOrdersTableName}'))
-BEGIN
-    CREATE TABLE [{SchemaName}].[{PhoneLineOrdersTableName}] (
-	[Id] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[PhoneNumber] [nvarchar](50) NULL,
-	[Status] [nvarchar](50) NOT NULL,
-	[HouseNumber] [int] NOT NULL,
-	[Postcode] [nvarchar](50) NOT NULL,
-	[Reference] [uniqueidentifier] NOT NULL
-)
-END
-                    ".Replace("{SchemaName}", SchemaName)
-                        .Replace("{PhoneLineOrdersTableName}", PhoneLineOrdersTableName);
-
-                    conn.Execute(sql,
-                        new {Dummy = "Dummy"},
-                        tx);
-                    tx.Commit();
-                }
-            }
-        }
-
+        
         public IEnumerable<BtOrderInbound> GetNew()
         {
             using (var conn = new SqlConnection(connectionString))
