@@ -50,7 +50,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseSetup", "DatabaseSetup", "{99B9439C-AE10-4020-92DB-01609F32362B}"
 	ProjectSection(SolutionItems) = preProject
 		src\DatabaseSetup\Dockerfile = src\DatabaseSetup\Dockerfile
-		entrypoint.sh = entrypoint.sh
+		src\DatabaseSetup\entrypoint.sh = src\DatabaseSetup\entrypoint.sh
+		src\DatabaseSetup\import-data.sh = src\DatabaseSetup\import-data.sh
+		src\DatabaseSetup\setup.sql = src\DatabaseSetup\setup.sql
 	EndProjectSection
 EndProject
 Global
