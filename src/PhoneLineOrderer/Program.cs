@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using Serilog;
 
 namespace PhoneLineOrderer
 {
@@ -12,6 +13,7 @@ namespace PhoneLineOrderer
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
+                .UseSerilog()
                 .Build();
 
             host.Run();

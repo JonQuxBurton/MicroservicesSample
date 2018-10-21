@@ -12,14 +12,13 @@ namespace FakeBt.Data
     {
         private readonly string connectionString;
 
-        private const string databaseName = "Microservices";
+        private const string DatabaseName = "Microservices";
         private const string SchemaName = "FakeBt";
         private const string PhoneLineOrdersTableName = "PhoneLineOrders";
 
         public BtOrdersDataStore(IOptions<AppSettings> appSettings)
         {
             this.connectionString = appSettings.Value.ConnectionString;
-            Console.WriteLine($"this.connectionString: {this.connectionString}");
         }
         
         public IEnumerable<BtOrderInbound> GetNew()

@@ -4,6 +4,7 @@ using Infrastructure.Serialization;
 using SmsSender.Data;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace SmsSender
 {
@@ -15,16 +16,19 @@ namespace SmsSender
         private readonly IWebServiceGetter webServiceGetter;
         private readonly IDeserializer deserializer;
         private readonly IDateTimeOffsetCreator dateTimeOffsetCreator;
+        private readonly ILogger logger;
 
         public OrderPlacedSmsSender(ISmsSenderDataStore smsSenderDataStore, 
             IWebServiceGetter webServiceGetter,
             IDeserializer deserializer, 
-            IDateTimeOffsetCreator dateTimeOffsetCreator)
+            IDateTimeOffsetCreator dateTimeOffsetCreator,
+            ILoggerFactory loggerFactory)
         {
             this.smsSenderDataStore = smsSenderDataStore;
             this.webServiceGetter = webServiceGetter;
             this.deserializer = deserializer;
             this.dateTimeOffsetCreator = dateTimeOffsetCreator;
+            this.logger = loggerFactory.CreateLogger<OrderPlacedSmsSender>();
         }
 
         public async Task<bool> Send(int phoneLineId)
@@ -33,7 +37,7 @@ namespace SmsSender
 
             if (response == null || response.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                Console.WriteLine($"response.StatuCode: {response?.StatusCode}");
+                this.logger.LogInformation($"response.StatuCode: {response?.StatusCode}");
                 return false;
             }
 

@@ -8,8 +8,8 @@ using Microsoft.Extensions.Options;
 using Nancy.Owin;
 using Polly;
 using Polly.Retry;
+using Serilog;
 using SmsSender.Config;
-using SmsSender.Data;
 
 namespace SmsSender
 {
@@ -17,6 +17,11 @@ namespace SmsSender
     {
         public Startup(IHostingEnvironment env)
         {
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true)
@@ -25,16 +30,18 @@ namespace SmsSender
             Configuration = builder.Build();
         }
 
+        public IConfigurationRoot Configuration { get; set; }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOptions();
+            services.AddLogging(loggingBuilder =>
+                loggingBuilder.AddSerilog(dispose: true));
 
             services.Configure<AppSettings>(Configuration);
         }
-
-        public IConfigurationRoot Configuration { get; set; }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -45,13 +52,8 @@ namespace SmsSender
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.UseOwin(x => x.UseNancy());
-
-            IOptions<AppSettings> options = app.ApplicationServices.GetService<IOptions<AppSettings>>();
-
-            Console.WriteLine("AppSettings:");
-            Console.WriteLine($"ConnectionString: {options.Value.ConnectionString}");
 
             RetryPolicy retry = Policy
                 .Handle<Exception>()

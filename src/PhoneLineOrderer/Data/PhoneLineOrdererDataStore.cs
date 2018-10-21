@@ -53,29 +53,19 @@ namespace PhoneLineOrderer.Data
 
         public int Add(PhoneLineOrder phoneLineOrder)
         {
-            Console.WriteLine("Add()...");
-
-            try
+            using (var connection = new SqlConnection(connectionString))
             {
-                using (var connection = new SqlConnection(connectionString))
+                connection.Open();
+
+                using (var transaction = connection.BeginTransaction())
                 {
-                    connection.Open();
+                    var sql = $"insert into {SchemaName}.{PhoneLineOrdersTableName}(PhoneLineId, CreatedAt, Status, HouseNumber, Postcode, ExternalReference) values (@PhoneLineId, @CreatedAt, @Status, @HouseNumber, @Postcode, @ExternalReference); select cast(scope_identity() as int);";
+                    var lastInsertedId = connection.Query<int>(sql, new { PhoneLineId = phoneLineOrder.PhoneLineId, CreatedAt = phoneLineOrder.CreatedAt, Status = phoneLineOrder.Status, HouseNumber = phoneLineOrder.HouseNumber, Postcode = phoneLineOrder.Postcode, ExternalReference = phoneLineOrder.ExternalReference }, transaction).Single();
 
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        var sql = $"insert into {SchemaName}.{PhoneLineOrdersTableName}(PhoneLineId, CreatedAt, Status, HouseNumber, Postcode, ExternalReference) values (@PhoneLineId, @CreatedAt, @Status, @HouseNumber, @Postcode, @ExternalReference); select cast(scope_identity() as int);";
-                        var lastInsertedId = connection.Query<int>(sql, new { PhoneLineId = phoneLineOrder.PhoneLineId, CreatedAt = phoneLineOrder.CreatedAt, Status = phoneLineOrder.Status, HouseNumber = phoneLineOrder.HouseNumber, Postcode = phoneLineOrder.Postcode, ExternalReference = phoneLineOrder.ExternalReference }, transaction).Single();
+                    transaction.Commit();
 
-                        transaction.Commit();
-
-                        return lastInsertedId;
-                    }
+                    return lastInsertedId;
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
             }
         }
 

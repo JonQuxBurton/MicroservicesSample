@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nancy.Owin;
 using PhoneLineOrderer.Config;
+using Serilog;
 
 namespace PhoneLineOrderer
 {
@@ -12,7 +13,11 @@ namespace PhoneLineOrderer
     {
         public Startup(IHostingEnvironment env)
         {
-            // Set up configuration sources.
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true)
@@ -28,6 +33,8 @@ namespace PhoneLineOrderer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOptions();
+            services.AddLogging(loggingBuilder =>
+                loggingBuilder.AddSerilog(dispose: true));
 
             services.Configure<AppSettings>(Configuration);
         }
