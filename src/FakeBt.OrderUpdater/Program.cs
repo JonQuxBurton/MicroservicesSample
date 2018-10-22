@@ -44,6 +44,10 @@ namespace FakeBt.OrderUpdater
             var appSettings = configuration.Get<AppSettings>();
             var options = Options.Create(appSettings);
 
+            Log.Logger.Information("FakeBt.OrderUpdater is running.");
+            Log.Logger.Information("AppSettings:");
+            Log.Logger.Information($"ConnectionString: {options.Value.ConnectionString}");
+
             Policy exponentialRetryPolicy =
                 Policy.Handle<Exception>().WaitAndRetry(3, attempt =>
                      TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt)));
@@ -56,10 +60,6 @@ namespace FakeBt.OrderUpdater
             recurringTimer.Target += phoneLineOrderUpdater.Update;
             recurringTimer.Start();
 
-            Log.Logger.Information("FakeBt.OrderUpdater is running.");
-            Log.Logger.Information("AppSettings:");
-            Log.Logger.Information($"ConnectionString: {options.Value.ConnectionString}");
-            
             await hostBuilder.RunConsoleAsync();
         }
     }

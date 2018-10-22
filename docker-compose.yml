@@ -34,17 +34,17 @@ services:
       context: .
       dockerfile: src/PhoneLineOrders.OrdersPlacedSubscriber/Dockerfile
 
-#  smssender:
-#    image: ${DOCKER_REGISTRY}smssender
-#    build:
-#      context: .
-#      dockerfile: src/SmsSender/Dockerfile
-#
-#  smssender.subscribers:
-#    image: ${DOCKER_REGISTRY}smssendersubscribers
-#    build:
-#      context: .
-#      dockerfile: src/SmsSender.Subscribers/Dockerfile
+  smssender:
+    image: ${DOCKER_REGISTRY}smssender
+    build:
+      context: .
+      dockerfile: src/SmsSender/Dockerfile
+
+  smssender.subscribers:
+    image: ${DOCKER_REGISTRY}smssendersubscribers
+    build:
+      context: .
+      dockerfile: src/SmsSender.Subscribers/Dockerfile
 
   fakebt:
     image: ${DOCKER_REGISTRY}fakebt

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Customers.Config;
@@ -48,7 +49,7 @@ namespace Customers
             this.logger.LogInformation("AppSettings");
             this.logger.LogInformation($"ConnectionString: {options.Value.ConnectionString}");
             this.logger.LogInformation($"EventStoreUrl: {options.Value.EventStoreUrl}");
-
+            
             //var connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse(options.Value.EventStoreIpAddress), int.Parse(options.Value.EventStorePort)));
             //var connection = EventStoreConnection.Create(options.Value.EventStoreUrl);
 
@@ -63,6 +64,16 @@ namespace Customers
                     TimeSpan.FromSeconds(80),
                     TimeSpan.FromSeconds(80)
                 });
+
+            retry.Execute(() =>
+            {
+                var addresses = System.Net.Dns.GetHostAddresses("eventstore");
+                this.logger.LogInformation($"EventStoreIpAddress: {addresses[0]}");
+                System.Net.Sockets.Socket sock = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
+                sock.Connect(addresses[0], 1113);
+                sock.Close();
+                this.logger.LogInformation($"EventStore is listening on port 1113");
+            });
 
             retry.Execute(() =>
             {

@@ -20,7 +20,7 @@ CREATE LOGIN PhoneLineOrdererMicroservice WITH PASSWORD = 'PhoneLineOrderer@456'
 GO
 CREATE USER PhoneLineOrdererMicroservice FOR LOGIN PhoneLineOrdererMicroservice
 GO
-CREATE LOGIN FakeBtMicroservice WITH PASSWORD = 'FakeBt@789';  
+CREATE LOGIN FakeBtMicroservice WITH PASSWORD = 'FakeBtMicroservice@789';  
 GO
 CREATE USER FakeBtMicroservice FOR LOGIN FakeBtMicroservice
 GO
