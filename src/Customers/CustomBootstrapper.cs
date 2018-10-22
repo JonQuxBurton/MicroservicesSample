@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Customers.Config;
 using EventStore.ClientAPI;
 using Infrastructure.Events;
@@ -56,8 +58,9 @@ namespace Customers
                 .Handle<Exception>()
                 .WaitAndRetry(new[]
                 {
-                    TimeSpan.FromSeconds(20),
                     TimeSpan.FromSeconds(40),
+                    TimeSpan.FromSeconds(40),
+                    TimeSpan.FromSeconds(80),
                     TimeSpan.FromSeconds(80)
                 });
 
@@ -66,7 +69,9 @@ namespace Customers
                 var addresses = System.Net.Dns.GetHostAddresses("eventstore");
                 this.logger.LogInformation($"EventStoreIpAddress: {addresses[0]}");
                 connection = EventStoreConnection.Create(new IPEndPoint(addresses[0], 1113));
-                connection.ConnectAsync().Wait(10 * 1000);
+
+                connection.ConnectAsync().Wait(20 * 1000);
+                this.logger.LogInformation("connection.ConnectAsync - wait completed");
             });
 
             container.Register(options);

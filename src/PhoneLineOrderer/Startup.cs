@@ -51,7 +51,7 @@ namespace PhoneLineOrderer
 
             app.UseOwin(x => x.UseNancy(new NancyOptions
             {
-                Bootstrapper = new CustomBootstrapper(app)
+                Bootstrapper = new CustomBootstrapper(app, loggerFactory)
             }));
         }
     }

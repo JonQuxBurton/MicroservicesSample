@@ -53,7 +53,10 @@ namespace SmsSender
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseOwin(x => x.UseNancy());
+            app.UseOwin(x => x.UseNancy(new NancyOptions
+            {
+                Bootstrapper = new CustomBootstrapper(app, loggerFactory)
+            }));
 
             RetryPolicy retry = Policy
                 .Handle<Exception>()
@@ -61,6 +64,8 @@ namespace SmsSender
                 {
                     TimeSpan.FromSeconds(20),
                     TimeSpan.FromSeconds(40),
+                    TimeSpan.FromSeconds(80),
+                    TimeSpan.FromSeconds(80),
                     TimeSpan.FromSeconds(80)
                 });
         }

@@ -14,7 +14,7 @@ using System;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Infrastructure.DateTimeUtilities;
-using PhoneLineOrderer.Data;
+using Microsoft.Extensions.Logging;
 using Polly.Retry;
 
 namespace PhoneLineOrderer
@@ -22,10 +22,12 @@ namespace PhoneLineOrderer
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {
         private readonly IApplicationBuilder applicationBuilder;
+        private readonly ILoggerFactory loggerFactory;
 
-        public CustomBootstrapper(IApplicationBuilder applicationBuilder)
+        public CustomBootstrapper(IApplicationBuilder applicationBuilder, ILoggerFactory loggerFactory)
         {
             this.applicationBuilder = applicationBuilder;
+            this.loggerFactory = loggerFactory;
         }
 
         protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
@@ -36,6 +38,8 @@ namespace PhoneLineOrderer
                 {
                     TimeSpan.FromSeconds(20),
                     TimeSpan.FromSeconds(40),
+                    TimeSpan.FromSeconds(80),
+                    TimeSpan.FromSeconds(80),
                     TimeSpan.FromSeconds(80)
                 });
 
@@ -71,6 +75,7 @@ namespace PhoneLineOrderer
             container.Register<IDeserializer, JsonDeserializer>().AsSingleton();
             container.Register<IGuidCreator, GuidCreator>();
             container.Register<IDateTimeOffsetCreator, DateTimeOffsetCreator>();
+            container.Register(loggerFactory);
         }
     }
 }

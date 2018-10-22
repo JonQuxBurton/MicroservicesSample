@@ -1,13 +1,13 @@
-﻿using FakeBt.Config;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nancy;
 using Nancy.Bootstrapper;
 using Nancy.TinyIoc;
+using SmsSender.Config;
 
-namespace FakeBt
+namespace SmsSender
 {
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {

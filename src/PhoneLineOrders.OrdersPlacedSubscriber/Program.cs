@@ -12,7 +12,10 @@ using Polly;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace PhoneLineOrderer.OrdersPlacedSubscriber
 {
@@ -20,6 +23,19 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber
     {
         static async Task Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+            var services = new ServiceCollection()
+                .AddLogging(x =>
+                {
+                    x.AddSerilog();
+                });
+
+            var serviceProvider = services.BuildServiceProvider();
+            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+
             var hostBuilder = new HostBuilder();
 
             var builder = new ConfigurationBuilder()
@@ -43,13 +59,13 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber
                 options, 
                 new RestPosterFactory(exponentialRetryPolicy),
                 new DateTimeOffsetCreator());
-            var subscriber = new Subscriber(eventGetter, orderSender, new GuidCreator());
+            var subscriber = new Subscriber(eventGetter, orderSender, new GuidCreator(), loggerFactory);
 
             var recurringTimer = new RecurringTimer(500, 5000);
             recurringTimer.Target += subscriber.Poll;
             recurringTimer.Start();
 
-            Console.WriteLine("PhoneLineOrderer.OrdersPlacedSubscriber is running.");
+            Log.Logger.Information("PhoneLineOrderer.OrdersPlacedSubscriber is running.");
 
             await hostBuilder.RunConsoleAsync();
         }

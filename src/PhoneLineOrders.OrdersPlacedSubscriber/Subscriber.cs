@@ -5,25 +5,29 @@ using PhoneLineOrderer.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace PhoneLineOrderer.OrdersPlacedSubscriber
 {
     public class Subscriber
     {
         private long start = 0;
-        private int chunkSize = 100;
+        private readonly int chunkSize = 100;
         private readonly IEventGetter eventGetter;
         private readonly IPhoneLineOrderSender phoneLineOrderSender;
         private readonly IGuidCreator guidCreator;
+        private readonly ILogger logger;
         private readonly string url = "PhoneLineOrdersPlaced";
 
         public Subscriber(IEventGetter eventGetter, 
             IPhoneLineOrderSender phoneLineOrderSender, 
-            IGuidCreator guidCreator)
+            IGuidCreator guidCreator,
+            ILoggerFactory loggerFactory)
         {
             this.eventGetter = eventGetter;
             this.phoneLineOrderSender = phoneLineOrderSender;
             this.guidCreator = guidCreator;
+            this.logger = loggerFactory.CreateLogger<Subscriber>();
         }
 
         public void Poll(object sender, EventArgs eventArgs)
@@ -37,15 +41,13 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception: {ex}");
+                this.logger.LogError($"Exception: {ex}");
             }
         }
 
         private void HandleEvents(string content)
         {
             var events = JsonConvert.DeserializeObject<IEnumerable<Event>>(content);
-
-            Console.WriteLine($"events.Count(): {events.Count()}");
 
             foreach (var ev in events)
             {

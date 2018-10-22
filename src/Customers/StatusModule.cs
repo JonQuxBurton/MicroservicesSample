@@ -31,7 +31,7 @@ namespace Customers
                     Connectivity = new
                     {
                         Database = GetDatabaseConnectivity(customerStore),
-                        PhoneLineOrdererService = GetPhoneLineOrdererServiceConnectivity(appSettings),
+                        //PhoneLineOrdererService = GetPhoneLineOrdererServiceConnectivity(appSettings),
                         PhoneLineOrdersPlacedStream = GetPhoneLineOrdersPlacedStreamConnectivity(phoneLineOrdersPlacedEventGetter)
                     }
                 };

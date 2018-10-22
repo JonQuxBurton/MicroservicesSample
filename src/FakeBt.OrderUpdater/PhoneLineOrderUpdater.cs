@@ -3,6 +3,7 @@ using FakeBt.Data;
 using Infrastructure.Rest;
 using Microsoft.Extensions.Options;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace FakeBt.OrderUpdater
 {
@@ -10,12 +11,14 @@ namespace FakeBt.OrderUpdater
     {
         private readonly IBtOrdersDataStore btOrdersDataStore;
         private readonly IRestPosterFactory restPosterFactory;
+        private readonly ILogger logger;
         private readonly string phoneLineOrdererUrl;
 
-        public PhoneLineOrderUpdater(IBtOrdersDataStore btOrdersDataStore, IOptions<AppSettings> appSettings, IRestPosterFactory restPosterFactory)
+        public PhoneLineOrderUpdater(IBtOrdersDataStore btOrdersDataStore, IOptions<AppSettings> appSettings, IRestPosterFactory restPosterFactory, ILoggerFactory loggerFactory)
         {
             this.btOrdersDataStore = btOrdersDataStore;
             this.restPosterFactory = restPosterFactory;
+            this.logger = loggerFactory.CreateLogger<PhoneLineOrderUpdater>();
             this.phoneLineOrdererUrl = appSettings.Value.PhoneLineOrdererWebServiceUrl;
         }
 
@@ -44,14 +47,14 @@ namespace FakeBt.OrderUpdater
                     }
                     else
                     {
-                        Console.WriteLine("Fail: " + response?.StatusCode);
+                        this.logger.LogInformation("Fail: " + response?.StatusCode);
                         this.btOrdersDataStore.Fail(pendingOrder.Id);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception: {ex}");
+                this.logger.LogError($"Exception: {ex}");
             }
         }
     }

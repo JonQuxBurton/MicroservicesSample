@@ -6,6 +6,7 @@ using RestSharp;
 using SmsSender.Data;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace SmsSender.Tests
@@ -13,14 +14,15 @@ namespace SmsSender.Tests
 #pragma warning disable AvoidAsyncVoid // Avoid async void
     public class OrderPlacedSmsSender_Send_Should
     {
-        private Customer expectedCustomer;
-        private int expectedPhoneLineId;
-        private DateTimeOffset expectedDateTimeOffset;
+        private readonly Customer expectedCustomer;
+        private readonly int expectedPhoneLineId;
+        private readonly DateTimeOffset expectedDateTimeOffset;
 
-        private Mock<ISmsSenderDataStore> smsSenderDataStoreMock;
-        private Mock<IWebServiceGetter> webServiceGetterMock;
-        private Mock<IDeserializer> deserializerMock;
-        private Mock<IDateTimeOffsetCreator> dateTimeOffsetCreatorMock;
+        private readonly Mock<ISmsSenderDataStore> smsSenderDataStoreMock;
+        private readonly Mock<IWebServiceGetter> webServiceGetterMock;
+        private readonly Mock<IDeserializer> deserializerMock;
+        private readonly Mock<IDateTimeOffsetCreator> dateTimeOffsetCreatorMock;
+        private readonly Mock<ILoggerFactory> loggerFactoryMock;
 
         public OrderPlacedSmsSender_Send_Should()
         {
@@ -41,12 +43,13 @@ namespace SmsSender.Tests
             dateTimeOffsetCreatorMock = new Mock<IDateTimeOffsetCreator>();
             dateTimeOffsetCreatorMock.Setup(x => x.Now)
                 .Returns(expectedDateTimeOffset);
+            loggerFactoryMock = new Mock<ILoggerFactory>();
         }
 
         [Fact]
         public async void SendSms()
         {
-            var sut = new OrderPlacedSmsSender(smsSenderDataStoreMock.Object, webServiceGetterMock.Object, deserializerMock.Object, dateTimeOffsetCreatorMock.Object);
+            var sut = new OrderPlacedSmsSender(smsSenderDataStoreMock.Object, webServiceGetterMock.Object, deserializerMock.Object, dateTimeOffsetCreatorMock.Object, loggerFactoryMock.Object);
 
             await sut.Send(expectedPhoneLineId);
 
@@ -56,7 +59,7 @@ namespace SmsSender.Tests
         [Fact]
         public async void ReturnTrue()
         {
-            var sut = new OrderPlacedSmsSender(smsSenderDataStoreMock.Object, webServiceGetterMock.Object, deserializerMock.Object, dateTimeOffsetCreatorMock.Object);
+            var sut = new OrderPlacedSmsSender(smsSenderDataStoreMock.Object, webServiceGetterMock.Object, deserializerMock.Object, dateTimeOffsetCreatorMock.Object, loggerFactoryMock.Object);
 
             var actual = await sut.Send(expectedPhoneLineId);
 
@@ -69,7 +72,7 @@ namespace SmsSender.Tests
             webServiceGetterMock.Setup(x => x.Get(It.IsAny<string>()))
                 .Returns(Task.FromResult<IRestResponse>(new RestResponse { StatusCode = System.Net.HttpStatusCode.InternalServerError }));
 
-            var sut = new OrderPlacedSmsSender(smsSenderDataStoreMock.Object, webServiceGetterMock.Object, deserializerMock.Object, dateTimeOffsetCreatorMock.Object);
+            var sut = new OrderPlacedSmsSender(smsSenderDataStoreMock.Object, webServiceGetterMock.Object, deserializerMock.Object, dateTimeOffsetCreatorMock.Object, loggerFactoryMock.Object);
 
             var actual = await sut.Send(expectedPhoneLineId);
 
