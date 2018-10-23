@@ -17,7 +17,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=CustomersMicroservice;Password=Customers@123
-      #- ConnectionString=${CUSTOMERS_DB:-Server=sql.da3ta;Initial Catalog=Microservices;User Id=sa;Password=Pass@word}
+      - EventStoreHostName=eventstore
     ports:
       - "5001:80"
 
@@ -31,7 +31,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionString=Server=sql.data,1433;Initial Catalog=Microservices;User Id=PhoneLineOrdererMicroservice;Password=PhoneLineOrderer@456
-      - CustomersWebServiceUrl=http://customers
+      - CustomersWebServiceUrl=http://customers,
+      - EventStoreHostName=eventstore
     ports:
       - "5002:80"
  

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using Customers.Config;
 using EventStore.ClientAPI;
 using Infrastructure.Events;
@@ -17,15 +14,14 @@ using Nancy.Bootstrapper;
 using Nancy.Configuration;
 using Nancy.TinyIoc;
 using Polly;
-using Polly.Retry;
 
 namespace Customers
 {
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {
         private readonly IApplicationBuilder applicationBuilder;
-        private readonly ILoggerFactory loggerFactory;
         private readonly ILogger<CustomBootstrapper> logger;
+        private readonly ILoggerFactory loggerFactory;
 
         public CustomBootstrapper(IApplicationBuilder applicationBuilder, ILoggerFactory loggerFactory)
         {
@@ -48,38 +44,49 @@ namespace Customers
 
             this.logger.LogInformation("AppSettings");
             this.logger.LogInformation($"ConnectionString: {options.Value.ConnectionString}");
-            this.logger.LogInformation($"EventStoreUrl: {options.Value.EventStoreUrl}");
-            
-            //var connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse(options.Value.EventStoreIpAddress), int.Parse(options.Value.EventStorePort)));
-            //var connection = EventStoreConnection.Create(options.Value.EventStoreUrl);
+            this.logger.LogInformation($"EventStoreHostName: {options.Value.EventStoreHostName}");
 
             IEventStoreConnection connection = null;
 
-            RetryPolicy retry = Policy
+            var isEventStoreServerUpCheckPolicy = Policy
                 .Handle<Exception>()
-                .WaitAndRetry(new[]
-                {
-                    TimeSpan.FromSeconds(40),
-                    TimeSpan.FromSeconds(40),
-                    TimeSpan.FromSeconds(80),
-                    TimeSpan.FromSeconds(80)
-                });
+                .WaitAndRetry(
+                    5,
+                    retryAttempt => TimeSpan.FromSeconds(20),
+                    (exception, timeSpan, context) =>
+                    {
+                        this.logger.LogInformation($"IsEventStoreServerUpCheck exception: {exception}");
+                    }
+                );
 
-            retry.Execute(() =>
+            isEventStoreServerUpCheckPolicy.Execute(() =>
             {
-                var addresses = System.Net.Dns.GetHostAddresses("eventstore");
+                var addresses = System.Net.Dns.GetHostAddresses(options.Value.EventStoreHostName);
                 this.logger.LogInformation($"EventStoreIpAddress: {addresses[0]}");
-                System.Net.Sockets.Socket sock = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
-                sock.Connect(addresses[0], 1113);
+                System.Net.Sockets.Socket sock = new System.Net.Sockets.Socket(
+                    System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream,
+                    System.Net.Sockets.ProtocolType.Tcp);
+                sock.Connect(addresses[0], options.Value.EventStorePort);
                 sock.Close();
-                this.logger.LogInformation($"EventStore is listening on port 1113");
+                this.logger.LogInformation($"EventStore Server is listening on port {options.Value.EventStorePort}");
             });
 
-            retry.Execute(() =>
+            var isEventStoreUpCheckPolicy = Policy
+                .Handle<Exception>()
+                .WaitAndRetry(
+                    3,
+                    retryAttempt => TimeSpan.FromSeconds(30),
+                    (exception, timeSpan, context) =>
+                    {
+                        this.logger.LogInformation($"IsEventStoreUpCheck exception: {exception}");
+                    }
+                );
+
+            isEventStoreUpCheckPolicy.Execute(() =>
             {
-                var addresses = System.Net.Dns.GetHostAddresses("eventstore");
+                var addresses = System.Net.Dns.GetHostAddresses(options.Value.EventStoreHostName);
                 this.logger.LogInformation($"EventStoreIpAddress: {addresses[0]}");
-                connection = EventStoreConnection.Create(new IPEndPoint(addresses[0], 1113));
+                connection = EventStoreConnection.Create(new IPEndPoint(addresses[0], options.Value.EventStorePort));
 
                 connection.ConnectAsync().Wait(20 * 1000);
                 this.logger.LogInformation("connection.ConnectAsync - wait completed");

@@ -5,7 +5,6 @@ using Infrastructure.Rest;
 using Infrastructure.Timers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;

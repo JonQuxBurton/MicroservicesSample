@@ -15,7 +15,6 @@ namespace FakeBt
                 .UseStartup<Startup>()
                 .UseSerilog()
                 .Build();
-
             host.Run();
         }
     }
