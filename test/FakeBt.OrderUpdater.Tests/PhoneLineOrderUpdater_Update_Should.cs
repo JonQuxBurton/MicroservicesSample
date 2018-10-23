@@ -73,9 +73,9 @@ namespace FakeBt.OrderUpdater.Tests
             var restPosterFactoryMock = new Mock<IRestPosterFactory>();
             restPosterFactoryMock.Setup(x => x.Create(appSettings.PhoneLineOrdererWebServiceUrl))
                 .Returns(restPosterMock.Object);
-            var loggerFactoryMock = new Mock<ILoggerFactory>();
+            var loggerFactory = new LoggerFactory();
 
-            var sut = new PhoneLineOrderUpdater(btOrdersDataStoreMock.Object, options, restPosterFactoryMock.Object, loggerFactoryMock.Object);
+            var sut = new PhoneLineOrderUpdater(btOrdersDataStoreMock.Object, options, restPosterFactoryMock.Object, loggerFactory);
 
             sut.Update(new object(), new EventArgs());
 
