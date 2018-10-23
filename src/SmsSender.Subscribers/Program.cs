@@ -10,16 +10,37 @@ using RestSharp;
 using SmsSender.Config;
 using System;
 using System.IO;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace SmsSender.Subscribers
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+            var services = new ServiceCollection()
+                .AddLogging(x =>
+                {
+                    x.AddSerilog();
+                });
+
+            var serviceProvider = services.BuildServiceProvider();
+            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+
+            var hostBuilder = new HostBuilder();
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
+                .AddJsonFile("appsettings.json")
+                .AddEnvironmentVariables();
 
             IConfigurationRoot configuration = builder.Build();
 
@@ -40,7 +61,8 @@ namespace SmsSender.Subscribers
                 new Data.SmsSenderDataStore(options), 
                 webServiceGetter,
                 new JsonDeserializer(),
-                new DateTimeOffsetCreator());
+                new DateTimeOffsetCreator(),
+                loggerFactory);
 
             var phoneLineOrdersPlacedSubscriber = new PhoneLineOrdersPlacedSubscriber(eventGetter, orderPlacedSmsSender);
             var phoneLineOrdersPlacedSubscriberTimer = new RecurringTimer(500, 5000);
@@ -61,10 +83,9 @@ namespace SmsSender.Subscribers
             phoneLineOrdersCompletedSubscriberTimer.Target += phoneLineOrdersCompletedSubscriber.Poll;
             phoneLineOrdersCompletedSubscriberTimer.Start();
 
-            Console.WriteLine("SmsSender.Subscribers is running.");
+            Log.Logger.Information("SmsSender.Subscribers is running.");
 
-            Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();
+            await hostBuilder.RunConsoleAsync();
         }
     }
 }

@@ -1,0 +1,60 @@
+version: '3.4'
+
+services:
+  eventstore:
+    image: eventstore/eventstore
+
+  sql.data:
+    image: mcr.microsoft.com/mssql/server
+    build:
+      context: .
+      dockerfile: src/DatabaseSetup/Dockerfile
+
+  customers:
+    image: ${DOCKER_REGISTRY}customers
+    build:
+      context: .
+      dockerfile: src/Customers/Dockerfile
+
+  customers.phonelineordercompletedsubscriber:
+    image: ${DOCKER_REGISTRY}customersphonelineordercompletedsubscriber
+    build:
+      context: .
+      dockerfile: src/Customers.PhoneLineOrderCompletedSubscriber/Dockerfile
+
+  phonelineorderer:
+    image: ${DOCKER_REGISTRY}phonelineorderer
+    build:
+      context: .
+      dockerfile: src/PhoneLineOrderer/Dockerfile
+
+  phonelineorderer.ordersplacedsubscriber:
+    image: ${DOCKER_REGISTRY}phonelineordererordersplacedsubscriber
+    build:
+      context: .
+      dockerfile: src/PhoneLineOrders.OrdersPlacedSubscriber/Dockerfile
+
+  smssender:
+    image: ${DOCKER_REGISTRY}smssender
+    build:
+      context: .
+      dockerfile: src/SmsSender/Dockerfile
+
+  smssender.subscribers:
+    image: ${DOCKER_REGISTRY}smssendersubscribers
+    build:
+      context: .
+      dockerfile: src/SmsSender.Subscribers/Dockerfile
+
+  fakebt:
+    image: ${DOCKER_REGISTRY}fakebt
+    build:
+      context: .
+      dockerfile: src/FakeBt/Dockerfile
+
+
+  fakebt.orderupdater:
+    image: ${DOCKER_REGISTRY}fakebtorderupdater
+    build:
+      context: .
+      dockerfile: src/FakeBt.OrderUpdater/Dockerfile

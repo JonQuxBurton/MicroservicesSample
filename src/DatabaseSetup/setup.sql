@@ -1,7 +1,33 @@
+CREATE DATABASE Microservices;
+GO
+USE Microservices;
+GO
+
 CREATE SCHEMA [Customers]
+GO
 CREATE SCHEMA [PhoneLineOrderer]
+GO
 CREATE SCHEMA [FakeBt]
+GO
 CREATE SCHEMA [SmsSender]
+GO
+
+CREATE LOGIN CustomersMicroservice WITH PASSWORD = 'Customers@123';
+GO  
+CREATE USER CustomersMicroservice FOR LOGIN CustomersMicroservice
+GO
+CREATE LOGIN PhoneLineOrdererMicroservice WITH PASSWORD = 'PhoneLineOrderer@456';
+GO
+CREATE USER PhoneLineOrdererMicroservice FOR LOGIN PhoneLineOrdererMicroservice
+GO
+CREATE LOGIN FakeBtMicroservice WITH PASSWORD = 'FakeBtMicroservice@789';  
+GO
+CREATE USER FakeBtMicroservice FOR LOGIN FakeBtMicroservice
+GO
+CREATE LOGIN SmsSenderMicroservice WITH PASSWORD = 'SmsSender@012';  
+GO
+CREATE USER SmsSenderMicroservice FOR LOGIN SmsSenderMicroservice
+GO
 
 CREATE TABLE [Customers].[Customers](
 	[Id] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
@@ -50,3 +76,13 @@ CREATE TABLE [SmsSender].[Sent](
 	[SentAt] [datetime] NOT NULL
 )
 GO
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA :: Customers TO CustomersMicroservice;
+GO
+GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA :: PhoneLineOrderer TO PhoneLineOrdererMicroservice;
+GO
+GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA :: FakeBt TO FakeBtMicroservice;
+GO
+GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA :: SmsSender TO SmsSenderMicroservice;
+GO
+

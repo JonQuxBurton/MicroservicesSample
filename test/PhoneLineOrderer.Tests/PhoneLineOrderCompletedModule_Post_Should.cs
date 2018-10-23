@@ -4,12 +4,14 @@ using PhoneLineOrderer.Data;
 using PhoneLineOrderer.Entities;
 using PhoneLineOrderer.Events;
 using System;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace PhoneLineOrderer.Tests
 {
     public class PhoneLineOrderCompletedModule_Post_Should
     {
+        private Mock<ILoggerFactory> loggerFactoryMock;
         private Mock<IPhoneLineOrdererDataStore> phoneLineOrdersDataStoreMock;
         private Mock<IPhoneLineOrderCompletedEventPublisher> phoneLineOrderCompletedEventPublisherMock;
         
@@ -18,6 +20,7 @@ namespace PhoneLineOrderer.Tests
 
         public PhoneLineOrderCompletedModule_Post_Should()
         {
+            loggerFactoryMock = new Mock<ILoggerFactory>();
             phoneLineOrdersDataStoreMock = new Mock<IPhoneLineOrdererDataStore>();
             phoneLineOrderCompletedEventPublisherMock = new Mock<IPhoneLineOrderCompletedEventPublisher>();
 
@@ -25,6 +28,7 @@ namespace PhoneLineOrderer.Tests
             {
                 with.Dependency(phoneLineOrdersDataStoreMock.Object);
                 with.Dependency(phoneLineOrderCompletedEventPublisherMock.Object);
+                with.Dependency(loggerFactoryMock.Object);
                 with.Module<PhoneLineOrderCompletedModule>();
             });
 

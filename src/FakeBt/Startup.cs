@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nancy.Owin;
+using Serilog;
 
 namespace FakeBt
 {
@@ -12,9 +13,15 @@ namespace FakeBt
     {
         public Startup(IHostingEnvironment env)
         {
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddEnvironmentVariables();
 
             Configuration = builder.Build();
         }
@@ -26,6 +33,8 @@ namespace FakeBt
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOptions();
+            services.AddLogging(loggingBuilder =>
+                loggingBuilder.AddSerilog(dispose: true));
 
             services.Configure<AppSettings>(Configuration);
         }
@@ -42,7 +51,7 @@ namespace FakeBt
 
             app.UseOwin(x => x.UseNancy(new NancyOptions
             {
-                Bootstrapper = new CustomBootstrapper(app)
+                Bootstrapper = new CustomBootstrapper(app, loggerFactory)
             }));
         }
     }

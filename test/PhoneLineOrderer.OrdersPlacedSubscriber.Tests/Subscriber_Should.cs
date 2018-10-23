@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace PhoneLineOrderer.OrdersPlacedSubscriber.Tests
@@ -42,8 +43,9 @@ namespace PhoneLineOrderer.OrdersPlacedSubscriber.Tests
             var guidCreatorMock = new Mock<IGuidCreator>();
             guidCreatorMock.Setup(x => x.Create())
                 .Returns(expectedPhoneLineOrder.reference);
+            var loggerFactoryMock = new Mock<ILoggerFactory>();
 
-            var sut = new Subscriber(eventGetterMock.Object, phoneLineOrderSenderMock.Object, guidCreatorMock.Object);
+            var sut = new Subscriber(eventGetterMock.Object, phoneLineOrderSenderMock.Object, guidCreatorMock.Object, loggerFactoryMock.Object);
 
             sut.Poll(null, new EventArgs());
 

@@ -6,6 +6,7 @@ using Moq;
 using RestSharp;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace FakeBt.OrderUpdater.Tests
@@ -35,8 +36,9 @@ namespace FakeBt.OrderUpdater.Tests
             var restPosterFactoryMock = new Mock<IRestPosterFactory>();
             restPosterFactoryMock.Setup(x => x.Create(appSettings.PhoneLineOrdererWebServiceUrl))
                 .Returns(restPosterMock.Object);
+            var loggerFactoryMock = new Mock<ILoggerFactory>();
 
-            var sut = new PhoneLineOrderUpdater(btOrdersDataStoreMock.Object, options, restPosterFactoryMock.Object);
+            var sut = new PhoneLineOrderUpdater(btOrdersDataStoreMock.Object, options, restPosterFactoryMock.Object, loggerFactoryMock.Object);
 
             sut.Update(new object(), new EventArgs());
 
@@ -71,8 +73,9 @@ namespace FakeBt.OrderUpdater.Tests
             var restPosterFactoryMock = new Mock<IRestPosterFactory>();
             restPosterFactoryMock.Setup(x => x.Create(appSettings.PhoneLineOrdererWebServiceUrl))
                 .Returns(restPosterMock.Object);
+            var loggerFactory = new LoggerFactory();
 
-            var sut = new PhoneLineOrderUpdater(btOrdersDataStoreMock.Object, options, restPosterFactoryMock.Object);
+            var sut = new PhoneLineOrderUpdater(btOrdersDataStoreMock.Object, options, restPosterFactoryMock.Object, loggerFactory);
 
             sut.Update(new object(), new EventArgs());
 

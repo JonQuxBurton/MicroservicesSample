@@ -12,6 +12,11 @@ namespace Customers.Data
     {
         private string connectionString;
 
+        private const string databaseName = "Microservices";
+        private const string SchemaName = "Customers";
+        private const string CustomersTableName = "Customers";
+        private const string PhoneLinesTableName = "PhoneLines";
+
         public CustomerDataStore(IOptions<AppSettings> appSettings)
         {
             this.connectionString = appSettings.Value.ConnectionString;
@@ -21,7 +26,7 @@ namespace Customers.Data
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                var dbCustomers = conn.Query(@"select * from Customers.Customers where Id=@Id", new { Id = id });
+                var dbCustomers = conn.Query($"select * from {SchemaName}.{CustomersTableName} where Id=@Id", new { Id = id });
                 var dbCustomer = dbCustomers.FirstOrDefault();
 
                 if (dbCustomer == null)
@@ -38,7 +43,7 @@ namespace Customers.Data
                 conn.Open(); 
                 using (var tx = conn.BeginTransaction())
                 {
-                    conn.Execute("insert into Customers.Customers(Name, MobilePhoneNumber) values (@Name, @mobilePhoneNumber)", new { Name = name, MobilePhoneNumber = mobilePhoneNumber }, tx);
+                    conn.Execute($"insert into {SchemaName}.{CustomersTableName}(Name, MobilePhoneNumber) values (@Name, @mobilePhoneNumber)", new { Name = name, MobilePhoneNumber = mobilePhoneNumber }, tx);
                     tx.Commit();
                 }
             }
@@ -53,7 +58,7 @@ namespace Customers.Data
                 using (var transaction = connection.BeginTransaction())
                 {
                     var status = "Pending";
-                    var sql = "insert into Customers.PhoneLines(CustomerId, Status, HouseNumber, Postcode) values (@CustomerId, @Status, @HouseNumber, @Postcode); select cast(scope_identity() as int);";
+                    var sql = $"insert into {SchemaName}.{PhoneLinesTableName}(CustomerId, Status, HouseNumber, Postcode) values (@CustomerId, @Status, @HouseNumber, @Postcode); select cast(scope_identity() as int);";
 
                     var lastInsertedId = connection.Query<int>(sql, new { CustomerId = customerId, Status = status, HouseNumber = phoneLineOrder.HouseNumber, Postcode = phoneLineOrder.Postcode }, transaction).Single();
 
@@ -72,7 +77,7 @@ namespace Customers.Data
 
                 using (var transaction = connection.BeginTransaction())
                 {
-                    var sql = "update Customers.PhoneLines set Status=@Status, PhoneNumber=@PhoneNumber where Id=@PhoneLineId";
+                    var sql = $"update {SchemaName}.{PhoneLinesTableName} set Status=@Status, PhoneNumber=@PhoneNumber where Id=@PhoneLineId";
 
                     connection.Execute(sql, new { PhoneLineId = phoneLineId, Status = status, PhoneNumber = phoneNumber }, transaction);
 
@@ -85,7 +90,7 @@ namespace Customers.Data
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                var dbCustomers = conn.Query(@"select c.* from Customers.Customers c join Customers.PhoneLines pl on c.Id=pl.CustomerId where pl.Id=@PhoneLineId", new { PhoneLineId = phoneLineId });
+                var dbCustomers = conn.Query($"select c.* from {SchemaName}.{CustomersTableName} c join Customers.PhoneLines pl on c.Id=pl.CustomerId where pl.Id=@PhoneLineId", new { PhoneLineId = phoneLineId });
 
                 return dbCustomers.Select(
                     x => new Customer {

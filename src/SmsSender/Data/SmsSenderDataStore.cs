@@ -10,6 +10,10 @@ namespace SmsSender.Data
     {
         private string connectionString;
 
+        private const string databaseName = "Microservices";
+        private const string SchemaName = "SmsSender";
+        private const string SentTableName = "Sent";
+
         public SmsSenderDataStore(IOptions<AppSettings> appSettings)
         {
             this.connectionString = appSettings.Value.ConnectionString;
@@ -22,7 +26,7 @@ namespace SmsSender.Data
                 conn.Open();
                 using (var tx = conn.BeginTransaction())
                 {
-                    conn.Execute("insert into SmsSender.Sent(CustomerId, MobilePhoneNumber, Message, SentAt) values (@CustomerId, @MobilePhoneNumber, @Message, @SentAt)", 
+                    conn.Execute($"insert into {SchemaName}.{SentTableName}(CustomerId, MobilePhoneNumber, Message, SentAt) values (@CustomerId, @MobilePhoneNumber, @Message, @SentAt)", 
                         new { CustomerId = customer.Id, MobilePhoneNumber= customer.MobilePhoneNumber, Message = message, SentAt = sentAt}, tx);
                     tx.Commit();
                 }

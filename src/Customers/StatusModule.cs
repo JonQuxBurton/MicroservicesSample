@@ -6,15 +6,21 @@ using Nancy;
 using System;
 using System.Linq;
 using System.Net.Sockets;
+using Microsoft.Extensions.Logging;
 
 namespace Customers
 {
     public class StatusModule : NancyModule
     {
+        private readonly ILogger logger;
+
         public StatusModule(ICustomerDataStore customerStore, 
             IOptions<AppSettings> appSettings, 
-            IPhoneLineOrdersPlacedEventGetter phoneLineOrdersPlacedEventGetter) : base("/status")
+            IPhoneLineOrdersPlacedEventGetter phoneLineOrdersPlacedEventGetter,
+            ILoggerFactory loggerFactory) : base("/status")
         {
+            this.logger = loggerFactory.CreateLogger<StatusModule>();
+
             Get("", x => {
                 return HttpStatusCode.OK;
             });
@@ -25,7 +31,7 @@ namespace Customers
                     Connectivity = new
                     {
                         Database = GetDatabaseConnectivity(customerStore),
-                        PhoneLineOrdererService = GetPhoneLineOrdererServiceConnectivity(appSettings),
+                        //PhoneLineOrdererService = GetPhoneLineOrdererServiceConnectivity(appSettings),
                         PhoneLineOrdersPlacedStream = GetPhoneLineOrdersPlacedStreamConnectivity(phoneLineOrdersPlacedEventGetter)
                     }
                 };
@@ -39,8 +45,10 @@ namespace Customers
                 phoneLineOrdersPlacedEventGetter.GetEvents(1, 2).ToList();
                 return true;
             }
-            catch
-            { }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex.ToString());
+            }
 
             return false;
         }

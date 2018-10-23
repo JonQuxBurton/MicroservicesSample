@@ -13,6 +13,10 @@ namespace PhoneLineOrderer.Data
     {
         private string connectionString;
 
+        private const string databaseName = "Microservices";
+        private const string SchemaName = "PhoneLineOrderer";
+        private const string PhoneLineOrdersTableName = "PhoneLineOrders";
+
         public PhoneLineOrdererDataStore(IOptions<AppSettings> appSettings)
         {
             this.connectionString = appSettings.Value.ConnectionString;
@@ -22,7 +26,7 @@ namespace PhoneLineOrderer.Data
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                var dbOrders = conn.Query(@"select * from PhoneLineOrderer.PhoneLineOrders where PhoneLineId=@phoneLineId order by CreatedAt desc", new { phoneLineId = phoneLineId });
+                var dbOrders = conn.Query($"select * from {SchemaName}.{PhoneLineOrdersTableName} where PhoneLineId=@phoneLineId order by CreatedAt desc", new { phoneLineId = phoneLineId });
 
                 foreach (var dbOrder in dbOrders)
                 {
@@ -35,7 +39,7 @@ namespace PhoneLineOrderer.Data
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                var dbOrder = conn.Query(@"select * from PhoneLineOrderer.PhoneLineOrders where ExternalReference=@reference order by CreatedAt desc", new { reference = reference }).FirstOrDefault();
+                var dbOrder = conn.Query($"select * from {SchemaName}.{PhoneLineOrdersTableName} where ExternalReference=@reference order by CreatedAt desc", new { reference = reference }).FirstOrDefault();
 
                 if (dbOrder == null)
                     return null;
@@ -46,7 +50,7 @@ namespace PhoneLineOrderer.Data
                 };
             }
         }
-        
+
         public int Add(PhoneLineOrder phoneLineOrder)
         {
             using (var connection = new SqlConnection(connectionString))
@@ -54,8 +58,8 @@ namespace PhoneLineOrderer.Data
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())
-                {                    
-                    var sql = @"insert into PhoneLineOrderer.PhoneLineOrders(PhoneLineId, CreatedAt, Status, HouseNumber, Postcode, ExternalReference) values (@PhoneLineId, @CreatedAt, @Status, @HouseNumber, @Postcode, @ExternalReference); select cast(scope_identity() as int);";
+                {
+                    var sql = $"insert into {SchemaName}.{PhoneLineOrdersTableName}(PhoneLineId, CreatedAt, Status, HouseNumber, Postcode, ExternalReference) values (@PhoneLineId, @CreatedAt, @Status, @HouseNumber, @Postcode, @ExternalReference); select cast(scope_identity() as int);";
                     var lastInsertedId = connection.Query<int>(sql, new { PhoneLineId = phoneLineOrder.PhoneLineId, CreatedAt = phoneLineOrder.CreatedAt, Status = phoneLineOrder.Status, HouseNumber = phoneLineOrder.HouseNumber, Postcode = phoneLineOrder.Postcode, ExternalReference = phoneLineOrder.ExternalReference }, transaction).Single();
 
                     transaction.Commit();
@@ -73,7 +77,7 @@ namespace PhoneLineOrderer.Data
 
                 using (var transaction = connection.BeginTransaction())
                 {
-                    var sql = @"update PhoneLineOrderer.PhoneLineOrders set Status=@Status where Id=@Id";
+                    var sql = $"update {SchemaName}.{PhoneLineOrdersTableName} set Status=@Status where Id=@Id";
                     connection.Execute(sql, new { Id = id, Status = "Sent" }, transaction);
                     transaction.Commit();
                 }
@@ -88,12 +92,13 @@ namespace PhoneLineOrderer.Data
 
                 using (var transaction = connection.BeginTransaction())
                 {
-                    var sql = @"update PhoneLineOrderer.PhoneLineOrders set Status=@Status where Id=@Id";
+                    var sql = $"update {SchemaName}.{PhoneLineOrdersTableName} set Status=@Status where Id=@Id";
                     connection.Execute(sql, new { Id = id, Status = "Failed" }, transaction);
                     transaction.Commit();
                 }
             }
         }
+
 
         public void Receive(Resources.PhoneLineOrderCompleted phoneLineOrderReceived)
         {
@@ -102,7 +107,7 @@ namespace PhoneLineOrderer.Data
                 conn.Open();
                 using (var tx = conn.BeginTransaction())
                 {
-                    conn.Execute("update PhoneLineOrderer.PhoneLineOrders set Status=@Status, PhoneNumber=@PhoneNumber where ExternalReference=@ExternalReference", new { Status = phoneLineOrderReceived.Status, ExternalReference = phoneLineOrderReceived.Reference, PhoneNumber = phoneLineOrderReceived.PhoneNumber }, tx);
+                    conn.Execute($"update {SchemaName}.{PhoneLineOrdersTableName} set Status=@Status, PhoneNumber=@PhoneNumber where ExternalReference=@ExternalReference", new { Status = phoneLineOrderReceived.Status, ExternalReference = phoneLineOrderReceived.Reference, PhoneNumber = phoneLineOrderReceived.PhoneNumber }, tx);
 
                     tx.Commit();
                 }

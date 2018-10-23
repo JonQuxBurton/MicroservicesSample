@@ -2,6 +2,7 @@ using FakeBt.Data;
 using Moq;
 using Nancy.Testing;
 using System;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace FakeBt.Tests
@@ -9,16 +10,19 @@ namespace FakeBt.Tests
     public class PhoneLineOrdersModule_Post_Should
     {
         private Mock<IBtOrdersDataStore> btOrdersDataStoreMock;
+        private Mock<ILoggerFactory> loggerFactoryMock;
         private ConfigurableBootstrapper bootstrapper;
         private Browser browser;
 
         public PhoneLineOrdersModule_Post_Should()
         {
             btOrdersDataStoreMock = new Mock<IBtOrdersDataStore>();
+            loggerFactoryMock = new Mock<ILoggerFactory>();
 
             bootstrapper = new ConfigurableBootstrapper(with =>
             {
                 with.Dependency(btOrdersDataStoreMock.Object);
+                with.Dependency(loggerFactoryMock.Object);
                 with.Module<PhoneLineOrdersModule>();
             });
 

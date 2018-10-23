@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Customers.PhoneLineOrderCompletedSubscriber.Tests
@@ -35,8 +36,9 @@ namespace Customers.PhoneLineOrderCompletedSubscriber.Tests
                         StatusCode = System.Net.HttpStatusCode.OK,
                         Content = serializedEvents
                     });
+            var loggerFactoryMock = new Mock<ILoggerFactory>();
 
-            var sut = new Subscriber(eventGetterMock.Object, customerDataStoreMock.Object);
+            var sut = new Subscriber(eventGetterMock.Object, customerDataStoreMock.Object, loggerFactoryMock.Object);
 
             sut.Poll(null, new EventArgs());
 

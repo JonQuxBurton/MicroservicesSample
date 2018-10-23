@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System;
+using Dapper;
 using FakeBt.Config;
 using FakeBt.Resources;
 using Microsoft.Extensions.Options;
@@ -9,20 +10,24 @@ namespace FakeBt.Data
 {
     public class BtOrdersDataStore : IBtOrdersDataStore
     {
-        private string connectionString;
+        private readonly string connectionString;
+
+        private const string DatabaseName = "Microservices";
+        private const string SchemaName = "FakeBt";
+        private const string PhoneLineOrdersTableName = "PhoneLineOrders";
 
         public BtOrdersDataStore(IOptions<AppSettings> appSettings)
         {
             this.connectionString = appSettings.Value.ConnectionString;
         }
-
+        
         public IEnumerable<BtOrderInbound> GetNew()
         {
             using (var conn = new SqlConnection(connectionString))
             {
                 conn.Open();
 
-                var pendingOrdersDb = conn.Query(@"select * from FakeBt.PhoneLineOrders where Status='New'");
+                var pendingOrdersDb = conn.Query($"select * from {SchemaName}.{PhoneLineOrdersTableName} where Status='New'");
 
                 foreach (var row in pendingOrdersDb)
                 {
@@ -50,7 +55,7 @@ namespace FakeBt.Data
                         Reference = phoneLineOrder.Reference,
                         Status = "New"
                     };
-                    conn.Execute("insert into FakeBt.PhoneLineOrders(HouseNumber, Postcode, Reference, Status) values (@HouseNumber, @Postcode, @Reference, @Status)", data, tx);
+                    conn.Execute($"insert into {SchemaName}.{PhoneLineOrdersTableName}(HouseNumber, Postcode, Reference, Status) values (@HouseNumber, @Postcode, @Reference, @Status)", data, tx);
                     tx.Commit();
                 }
             }
@@ -70,7 +75,7 @@ namespace FakeBt.Data
                         PhoneNumber = phoneLineOrder.PhoneNumber,
                         Status = "Complete"
                     };
-                    conn.Execute("update FakeBt.PhoneLineOrders set Status=@Status, PhoneNumber=@PhoneNumber where Id=@Id", data, tx);
+                    conn.Execute($"update {SchemaName}.{PhoneLineOrdersTableName} set Status=@Status, PhoneNumber=@PhoneNumber where Id=@Id", data, tx);
                     tx.Commit();
                 }
             }
@@ -89,7 +94,7 @@ namespace FakeBt.Data
                         Id = id,
                         Status = "Failed"
                     };
-                    conn.Execute("update FakeBt.PhoneLineOrders set Status=@Status where Id=@Id", data, tx);
+                    conn.Execute($"update {SchemaName}.{PhoneLineOrdersTableName} set Status=@Status where Id=@Id", data, tx);
                     tx.Commit();
                 }
             }
