@@ -24,26 +24,24 @@ Domain
 ------
 Modelled on a simple Telecoms domain of:
 
-Customers (Customers microservice)
+Customers (Customers Microservice)
 
-...ordering PhoneLines (PhoneLineOrderer microservice)
+...ordering PhoneLines (PhoneLineOrderer Microservice)
 
-...from a Wholesaler (FakeBt microservice)
+...from a Wholesaler (FakeBt Microservice)
 
-![alt text](https://raw.githubusercontent.com/JonQuxBurton/MicroservicesSample/master/MicroservicesSample.png)
+...and receiving an SMS when it is completed (Sms Microservice)
 
-Data
-----
-Database creation script (T-SQL):
-DatabaseSetupScript.sql
+![alt text](https://raw.githubusercontent.com/JonQuxBurton/MicroservicesSample/master/MsSampleDiagram1.xml)
+![alt text](https://raw.githubusercontent.com/JonQuxBurton/MicroservicesSample/master/MsSampleDiagram2.xml)
+![alt text](https://raw.githubusercontent.com/JonQuxBurton/MicroservicesSample/master/MsSampleDiagram3.xml)
 
 
 Launching
 ---------
-The Launch.ps1 Powershell script will launch the system (six projects).
+Launch the system using docker:
 
-Will also need to install and then launch EventStore:
-EventStore.ClusterNode --db ./db --log ./logs
+$ docker-compose up -d --build
 
 
 Usage
