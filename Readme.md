@@ -10,10 +10,15 @@ A small sample of a Microservices architecture inspired by the book [Microservic
 Tech
 ----
 WebApi: [NancyFx](https://github.com/NancyFx/Nancy)
+
 Data access: [Dapper](https://github.com/StackExchange/Dapper)
+
 Event-based collaboration: [EventStore](https://github.com/EventStore/EventStore)
+
 Robustness: [Polly](https://github.com/App-vNext/Polly)
+
 Unit tests: [Moq](https://github.com/Moq/moq4/wiki/Quickstart), [xUnit](https://xunit.github.io/)
+
 Containers: [Docker](https://www.docker.com/)
 
 Domain
@@ -28,10 +33,13 @@ Customers (Customers Microservice)
 
 ...and receiving an SMS when it is completed (Sms Microservice)
 
+------
 ![alt text](https://raw.githubusercontent.com/JonQuxBurton/MicroservicesSample/master/MsSampleDiagram1.png)
+------
 ![alt text](https://raw.githubusercontent.com/JonQuxBurton/MicroservicesSample/master/MsSampleDiagram2.png)
+------
 ![alt text](https://raw.githubusercontent.com/JonQuxBurton/MicroservicesSample/master/MsSampleDiagram3.png)
-
+------
 
 Launching
 ---------
